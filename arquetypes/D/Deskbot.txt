@@ -1,0 +1,15 @@
+Main Deck:
+Deskbot 009 x1
+Deskbot 008 x1
+Deskbot 007 x1
+Deskbot 006 x1
+Deskbot 005 x1
+Deskbot 004 x1
+Deskbot 003 x1
+Deskbot 002 x1
+Deskbot 001 x1
+Deskbot Base x1
+
+
+Extra Deck:
+Deskbot Jet x1
