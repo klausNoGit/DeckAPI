@@ -1,0 +1,25 @@
+{
+    "id":"YCM - EN000",
+    "name":"",
+    "level":4,
+    "type":"Cyberse",
+    "atribute":"None",
+    "effect":"A card maker that supports.",
+    "atk":"0",
+    "def":"0",
+    "pendulum":{
+        "effect":"",
+        "blue":"5",
+        "red":"5"
+    },
+    "link":{
+        "topLeft":false,
+        "topCenter":false,
+        "topRight":false,
+        "middleLeft":false,
+        "middleRight":false,
+        "bottomLeft":false,
+        "bottomCenter":false,
+        "bottomRight":false
+    }
+}
