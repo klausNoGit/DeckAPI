@@ -164,6 +164,7 @@ cython_debug/
 # APP
 
 /src/estatistica
+/src/csv
 /scrap/html
 /scrap/yugioh_boosters.ods
 /scrap/html_yugiohpro.rar
