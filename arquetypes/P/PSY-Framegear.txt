@@ -1,0 +1,10 @@
+Main Deck:
+PSY-Framegear Epsilon x1
+PSY-Framegear Delta x1
+PSY-Framegear Gamma x1
+PSY-Framegear Beta x1
+PSY-Framegear Alpha x1
+
+
+Extra Deck:
+PSY-Framelord Lambda x1

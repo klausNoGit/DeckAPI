@@ -1,0 +1,32 @@
+Main Deck:
+Karakuri Ninja mdl 7749 "Nanashick" x1
+Karakuri Bonze mdl 9763 "Kunamzan" x1
+Karakuri Muso mdl 818 "Haipa" x1
+Karakuri Bushi mdl 6318 "Muzanichiha" x1
+Karakuri Ninja mdl 919 "Kuick" x1
+Karakuri Soldier mdl 236 "Nisamu" x1
+Karakuri Watchdog mdl 313 "Saizan" x1
+Karakuri Ninja mdl 339 "Sazank" x1
+Karakuri Strategist mdl 248 "Nishipachi" x1
+Karakuri Komachi mdl 224 "Ninishi" x1
+Karakuri Merchant mdl 177 "Inashichi" x1
+Karakuri Spider x1
+Karakuri Barrel mdl 96 "Shinkuro" x1
+Karakuri Gama mdl 4624 "Shirokunishi" x1
+Karakuri Cash Cache x1
+Karakuri Gold Dust x1
+Golden Gearbox x1
+Runaway Karakuri x1
+Karakuri Anatomy x1
+Karakuri Gama Oil x1
+Karakuri Showdown Castle x1
+Karakuri Cash Inn x1
+Karakuri Trick House x1
+Karakuri Klock x1
+Karakuri Cash Shed x1
+
+
+Extra Deck:
+Karakuri Super Shogun mdl 00N "Bureibu" x1
+Karakuri Steel Shogun mdl 00X "Bureido" x1
+Karakuri Shogun mdl 00 "Burei" x1

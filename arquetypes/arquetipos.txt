@@ -321,7 +321,6 @@ Nimble
 Ninja
 Ninjitsu Art
 Nitro
-Noble
 Noble Arms
 Noble Knight
 Nordic
@@ -340,7 +339,6 @@ Numeron
 Numeron Gate
 Numerounius
 Odd-Eyes
-of the Forest
 Ogdoadic
 Ojama
 Old Entity
@@ -396,7 +394,7 @@ Rikka
 Ritual Beast
 Ritual Beast Tamer
 Ritual Beast Ulti-
-roid
+Roid
 Rokket
 Roland
 Rose Dragon
@@ -472,7 +470,7 @@ Synchro
 Synchro Dragon
 Synchron
 Tearlaments
-tellarknight
+Tellarknight
 Tenyi
 T.G.
 The Agent
@@ -501,7 +499,7 @@ Unchained
 Unchained Soul
 Ursarctic
 Utopia
-Utopi/c
+Utopic
 Vaalmonica
 Valkyrie
 Vampire
