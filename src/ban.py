@@ -13,16 +13,14 @@ from pandas import DataFrame
 
 class BanSheetWeb:
     """
-    Estrutura de dados criada para lidar com requisicoes ao **google.sheet**,\n
-    processamento de dados em rede e arquivos locais, ambos referente\n
-    a banlist do Mochila Champions.
+    Estrutura de dados responsável pelo gerenciamento de requisições ao Google Sheets e
+    processamento de dados em rede e arquivos locais, ambos relacionados à banlist do Mochila Champions.
 
-    ### ****Args:****
-    - **sheet** : *str*\n
-    Nome da folha na planilha que deve ser feita a requisicao.
+    Args:
+        sheet (str): Nome da folha (sheet) na planilha do Google Sheets para a qual será feita a requisição.
 
-    ### **Returns:**
-    - *None*
+    Returns:
+        None: Não retorna valores, apenas executa operações relacionadas à requisição dos dados.
     """
     def __init__(self, sheet: str = 'Home') -> None:
         self.__SHEET: str = sheet
@@ -31,12 +29,12 @@ class BanSheetWeb:
 
     def get_end_point(self) -> dict:
         """
-        Retorna um dicionario com atributos da class.
+        Retorna um dicionário contendo os atributos da classe.
 
-        **Returns:**
-        - *dict*
+        Returns:
+            dict: Dicionário com os atributos da classe, conforme exemplo abaixo:
         ```python
-        dicionario = {
+        {
             'sheet': __SHEET__,
             'token': __TOKEN__,
             'point': __END_POINT__
@@ -51,15 +49,18 @@ class BanSheetWeb:
 
     def request_frame(self, url: Union[str, None] = None) -> dict:
         """
-        Faz um pedido ao servidor que contem a planilha do **google.sheet**.
+        Faz uma requisição ao servidor que contém a planilha do Google Sheets.
 
-        **Args:**
-        - **url** : *Union[str, None]* = `None`\n
-        Se for vazia requisita na folha principal do argumento sheet
+        Args:
+            url (Union[str, None], opcional): URL do servidor da planilha.
+                Se não fornecido, a requisição será feita na folha principal do argumento `sheet`.
 
-        **Returns:**
-        - *dict* \n
-        Em caso de error -> ```{ 'error' : 400 }```
+        Returns:
+            dict: Dicionário contendo os dados da requisição.\n
+            Em caso de erro, retorna:
+        ```python
+        { 'error': 400 }
+        ```
         """
         d = requests.get(self.__END_POINT) if url == None else requests.get(str(url))
         return dict(d.json()) if d.status_code == 200 else { 'error' : 400 }
@@ -70,31 +71,28 @@ class BanSheetWeb:
         col: list[str] = ['Card Type', 'Card Name', 'Condition', 'Remarks']
     ) -> pd.DataFrame:
         """
-        Limpa qualquer folha da planilha e retorna como DataFrame.
+        Limpa qualquer folha da planilha e retorna os dados como um DataFrame.
 
-        **Args:**
-        - **data** : *dict*\n
-        Dicionario com dados da planilha
-        - **col** : *list*\n
-        Colunas que serao selecionadas
+        Args:
+            data (dict): Dicionário contendo os dados da planilha.
+            col (list): Colunas que serão selecionadas para o DataFrame.
 
-        **Returns:**
-        - *DataFrame*
+        Returns:
+            DataFrame: Um DataFrame com os dados da planilha,
+            filtrados pelas colunas especificadas.
         """
         df = pd.DataFrame(data['folha'], columns=data['folha'][0])
         return df[col].copy()
 
     def save(self, data: pd.DataFrame) -> bool:
         """
-        Cria o diretório `/var/` se nao existir e salva o DataFrame como CSV.
+        Cria o diretório `/var/` se não existir e salva o DataFrame como um arquivo CSV.
 
-        **Args:**
-        - **data** : *DataFrame*\n
-        DataFrame que sera salvo como CSV separado por `;`
+        Args:
+            data (DataFrame): DataFrame que será salvo como CSV, com separador `|`.
 
-        **Returns:**
-        - *bool*\n
-        `True` se o arquivo for criado, `False` para falha.
+        Returns:
+            bool: Retorna `True` se o arquivo for criado com sucesso, ou `False` em caso de falha.
         """
         var_dir = os.path.join(os.path.dirname(__file__), 'var')
         if not os.path.exists(var_dir):
@@ -102,16 +100,16 @@ class BanSheetWeb:
 
         data.columns = data.columns.str.replace(' ', '_').str.lower()
         download = os.path.join(var_dir, f'{self.__SHEET}.csv')
-        data.to_csv(download, sep=';', index=False)
+        data.to_csv(download, sep='|', index=False)
         return os.path.exists(download)
 
     def download_banlist(self) -> bool:
         """
-        Realiza o download dos dados da banlist
+        Realiza o download dos dados da banlist.
 
-        **Returns:**
-        - *bool*\n
-        `False` para falha da requisicao, `True` se funcionar tudo perfeitamente
+        Returns:
+            bool: Retorna `False` em caso de falha na requisição,
+            ou `True` se o download for bem-sucedido.
         """
         link = self.__END_POINT[0:self.__END_POINT.find('='):] + '=Home'
         dados = self.request_frame(link)
@@ -120,23 +118,21 @@ class BanSheetWeb:
 
 class BanSheetWebAsync:
     """
-    Estrutura de dados `Async` para Multiplas requisicoes a folhas 
-    da planilha da Banlist.
+    Estrutura de dados assíncrona (Async) para realizar múltiplas requisições
+    às folhas da planilha da Banlist.
     """
     def __init__(self) -> None:
         self.__BAN_SHEET_WEB__ = BanSheetWeb()
 
     def __mount_link__(self, frames: list[str]) -> list[str]:
         """
-        Monta uma lista de end points para cada sheet na variavel frames.
+        Monta uma lista de endpoints para cada sheet na variável `frames`.
 
-        **Args:***
-        - **frames** : *list[str]*\n
-        Uma lista com o nome das `folhas/sheets` desejados
+        Args:
+            frames (list[str]): Nomes das `folhas/sheets` desejadas.
 
-        **Returns:**
-        - *list[str]*\n
-        Lista com cada link de end point
+        Returns:
+            list[str]: Lista contendo os links de endpoint para cada folha.
         """
         dicionario = self.__BAN_SHEET_WEB__.get_end_point()
         sheet = dicionario['sheet']
@@ -145,15 +141,14 @@ class BanSheetWebAsync:
 
     async def fetch_data(self, links: list[str]) -> list[dict]:
         """
-        Requisita uma serie de links, retorna uma lista com as respostas.
+        Requisita uma série de links e retorna uma lista com as respostas.
 
-        **Args:**
-        - **links** : *list[str]*\n
-        Lista com cada link de requisicao de resposta `.json`
+        Args:
+            links (list[str]): Lista com os links de requisição
+                que retornam respostas no formato `.json`.
 
-        **Returns:**
-        - *list[dict]*\n
-        Lista com as respostas em `dict`
+        Returns:
+            list[dict]: Lista com as respostas em formato `dict` para cada link.
         """
         function_ = self.__BAN_SHEET_WEB__.request_frame
         tasks = [asyncio.to_thread(function_, l) for l in links]
@@ -162,15 +157,13 @@ class BanSheetWebAsync:
 
     async def mount_frame(self, sheet_dict: list[dict]) -> list[DataFrame]:
         """
-        Limpa cada dicionario requisitado, retorna uma lista com DataFrame.
+        Limpa cada dicionário requisitado e retorna uma lista com DataFrames.
 
-        **Args:**
-        - **sheet_dict** : *list[dict]*\n
-        Lista de dicionarios recebidos por requisicao async
+        Args:
+            sheet_dict (list[dict]): Lista de dicionários recebidos por requisição assíncrona.
 
-        **Returns:**
-        - *list[DataFrame]*\n
-        Lista com os dados em forma de DataFrame
+        Returns:
+            list[DataFrame]: Lista contendo os dados em formato de DataFrame.
         """
         function_ = self.__BAN_SHEET_WEB__.clean_frame
         tasks = [asyncio.to_thread(function_, d) for d in sheet_dict]
@@ -183,17 +176,16 @@ class BanSheetWebAsync:
         sheet_names: list[str]
     ) -> list[str]:
         """
-        Cria o diretório `/var/` se nao existir e salva os DataFrames como CSV,\n
-        os nomes dos arquivos serao passados em sheet_names.
+        Cria o diretório `/var/` se não existir e salva os DataFrames como arquivos CSV.\n
+        Os nomes dos arquivos serão passados na lista `sheet_names`.
 
-        **Args:**
-        - **frames** : *list[DataFrame]*\n
-        Lista com uma sequencia de DataFrames para serem salvos
-        - **sheet_names** : *list[str]*
-        Lista com nomes de cda DataFrame em ordem
+        Args:
+            frames (list[DataFrame]): Sequência de DataFrames que serão salvos como CSV.
+            sheet_names (list[str]): Nomes de cada DataFrame, na ordem correspondente.
 
-        **Returns:**
-        - *None*
+        Returns:
+            list[str]: Lista com os caminhos completos
+            dos arquivos CSV salvos no diretório `/var/`.
         """
         var_dir = str(os.path.join(os.path.dirname(__file__), 'var'))
         if not os.path.exists(var_dir):
@@ -210,17 +202,16 @@ class BanSheetWebAsync:
 
     async def creat_files(self, sheets: list[str]) -> bool:
         """
-        Requisita cada sheet e cria uma pasta `/var/`, 
-        retorna `True` se todos forem baixados.
+        Requisita os dados de cada folha do Google Sheets e cria uma pasta `/var/`.\n
+        Retorna `True` se todos os arquivos forem baixados com sucesso.
 
-        **Args:**
-        - **link_sheet** : *list[str]*\n
-        Lista com os end points de cada folha
-        - **sheets** : *list[str]*
-        Lista com os nomes de cada folha do sheet, tambem sera o nome do arquivo
+        Args:
+            sheets (list[str]): Lista com os nomes de cada folha do Google Sheets.\n
+                Esses nomes também serão usados como nomes dos arquivos.
 
-        **Returns:**
-        - None
+        Returns:
+            bool: Retorna `True` se todos os arquivos forem n\
+            baixados e salvos corretamente, `False` caso contrário.
         """
         lista_dicts = await self.fetch_data(self.__mount_link__(sheets))
         lista_dados = await self.mount_frame(lista_dicts)
@@ -229,15 +220,14 @@ class BanSheetWebAsync:
 
     def async_download_run(self, f: list[str]) -> bool:
         """
-        Realiza o download Async para cada folha na banlist
+        Realiza o download assíncrono de dados para cada folha da banlist.
 
-        **Args:**
-        - **f** : *list[str]*\n
-        Lista com nome das folhas da planilha
+        Args:
+            f (list[str]): Nomes das folhas da planilha que serão baixadas.
 
-        **Returns:**
-        - *bool*
-        `True` se todos forem baixados corretamente, `False` do contrario
+        Returns:
+            bool: Retorna `True` se todos os arquivos forem \n
+            baixados corretamente, `False` caso contrário.
         """
         return asyncio.run(self.creat_files(f))
 

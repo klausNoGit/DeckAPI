@@ -1,49 +1,53 @@
 Main Deck:
-Odd-Eyes Saber Dragon x1
-Elementsaber Lapauila Mana x1
-XX-Saber Faultroll x1
-Saber Beetle x1
-Commander Gottoms, Swordmaster x1
-XX-Saber Gardestrike x1
-ZW - Pegasus Twin Saber x1
-XX-Saber Boggart Knight x1
-Elementsaber Molehu x1
-X-Saber Galahad x1
-Saber Shark x1
-X-Saber Uruz x1
-Zefrasaber, Swordmaster of the Nekroz x1
-XX-Saber Garsem x1
-Elementsaber Lapauila x1
-Elementsaber Malo x1
-X-Saber Airbellum x1
-Elementsaber Nalu x1
-XX-Saber Fulhelmknight x1
-XX-Saber Emmersblade x1
-XX-Saber Darksoul x1
-Elementsaber Makani x1
-Elementsaber Aina x1
-X-Saber Pashuul x1
-X-Saber Axel x1
-XX-Saber Ragigura x1
-X-Saber Palomuro x1
-Saber Slash x1
-Gottoms' Second Call x1
-Saber Reflection x1
-Sword of Sparkles x1
-Palace of the Elemental Lords x1
-Saber Vault x1
-At One With the Sword x1
-Gottoms' Emergency Call x1
-Elemental Training x1
-Saber Hole x1
+Salamangreat Beat Bison x1
+Salamangreat Parro x1
+Salamangreat Tiger x1
+Salamangreat Jack Jaguar x1
+Salamangreat Fowl x1
+Salamangreat Wolvie x1
+Salamangreat Zebroid X x1
+Salamangreat Falco x1
+Salamangreat Fennec x1
+Salamangreat Gazelle x1
+Salamangreat Foxer x1
+Salamangreat Spinny x1
+Salamangreat Foxy x1
+Salamangreat Coyote x1
+Salamangreat Weasel x1
+Code of Soul x1
+Salamangreat of Fire x1
+Salamangreat Meer x1
+Salamangreat Raccoon x1
+Salamangreat Mole x1
+Salamangreat Emerald Eagle x1
+Fusion of Fire x1
+Burning Draw x1
+Salamangreat Recureance x1
+Fury of Fire x1
+Rise of the Salamangreat x1
+Salamangreat Burning Shell x1
+Salamangreat Circle x1
+Salamangreat Transcendence x1
+Salamangreat Charge x1
+Will of the Salamangreat x1
+Rising Fire x1
+Salamangreat Claw x1
+Salamangreat Sanctuary x1
+Salamangreat Rage x1
+Salamangreat Revive x1
+Salamangreat Gift x1
+Salamangreat Roar x1
 
 
 Extra Deck:
-XX-Saber Gottoms x1
-X-Saber Souza x1
-Rampaging Smashtank Rhynosaber x1
-X-Saber Urbellum x1
-XX-Saber Hyunlei x1
-X-Saber Wayne x1
-M-X-Saber Invoker x1
-Gaia Saber, the Lightning Shadow x1
+Salamangreat Violet Chimera x1
+Salamangreat Burst Gryphon x1
+Salamangreat Blaze Dragon x1
+Salamangreat Miragestallio x1
+Salamangreat Pyro Phoenix x1
+Salamangreat Raging Phoenix x1
+Salamangreat Heatleo x1
+Salamangreat Sunlight Wolf x1
+Salamangreat Balelynx x1
+Salamangreat Almiraj x1
+
