@@ -5,17 +5,23 @@ Elemental HERO Clayman x1
 Elemental HERO Burstinatrix x1
 Elemental HERO Avian x1
 Neos Wiseman x1
+Evil HERO Malicious Edge x1
 Elemental HERO Bladedge x1
 Elemental HERO Spirit of Neos x1
 Elemental HERO Honest Neos x1
+Evil HERO Infernal Rider x1
 Elemental HERO Poison Rose x1
 Winged Kuriboh LV6 x1
+Evil HERO Sinister Necrom x1
 Elemental HERO Necroshade x1
+Evil HERO Adusted Gold x1
 Elemental HERO Captain Gold x1
 Elemental HERO Neos Alius x1
 Elemental HERO Stratos x1
 Elemental HERO Prisma x1
+Evil HERO Doom Prison x1
 Elemental HERO Heat x1
+Evil HERO Infernal Gainer x1
 Elemental HERO Wildheart x1
 Elemental HERO Ocean x1
 Elemental HERO Liquid Soldier x1
@@ -29,10 +35,15 @@ Elemental HERO Shadow Mist x1
 Neo Space Connector x1
 Elemental HERO Neo Bubbleman x1
 Elemental HERO Bubbleman x1
+Evil HERO Toxic Bubble x1
 Wroughtweiler x1
 Elemental HERO Ice Edge x1
 Elemental HERO Knospe x1
 Cross Keeper x1
+Evil HERO Infernal Prodigy x1
+Evil Assault x1
+Supreme King's Castle x1
+Dark Supremacy x1
 Hero Flash!! x1
 E - Emergency Call x1
 A Hero Lives x1
@@ -89,6 +100,10 @@ Edge Hammer x1
 D - Time x1
 Protection of the Elements x1
 Feather Wind x1
+Mask Change x1
+Form Change x1
+Mask Change II x1
+
 
 Extra Deck:
 Elemental HERO Divine Neos x1
@@ -96,6 +111,48 @@ Elemental HERO Cosmo Neos x1
 Rainbow Neos x1
 Armed Neos x1
 Elemental HERO Electrum x1
+Evil HERO Neos Lord x1
+Evil HERO Malicious Fiend x1
+Evil HERO Malicious Bane x1
+Evil HERO Wild Cyclone x1
+Evil HERO Dark Knight x1
+Evil HERO Dark Gaia x1
+Evil HERO Lightning Golem x1
+Evil HERO Inferno Wing x1
+Evil HERO Inferno Wing - Infernal Backlash x1
+Evil HERO Infernal Sniper x1
+Elemental HERO The Shining x1
+Elemental HERO Shining Flare Wingman x1
+Elemental HERO Shining Phoenix Enforcer x1
+Elemental HERO Escuridao x1
+Elemental HERO Absolute Zero x1
+Elemental HERO Terra Firma x1
+Elemental HERO Inferno x1
+Elemental HERO Flame Wingman - Infernal Rage x1
+Evil HERO Wild Cyclone x1
+Elemental HERO Wild Wingman x1
+Elemental HERO Air Neos x1
+Elemental HERO Dark Neos x1
+Elemental HERO Grand Neos x1
+Elemental HERO Aqua Neos x1
+Elemental HERO Brave Neos x1
+Elemental HERO Necroid Shaman x1
+Elemental HERO Grandmerge x1
+Elemental HERO Steam Healer x1
+Elemental HERO Mariner x1
+Contrast HERO Chaos x1
+Masked HERO Dian x1
+Masked HERO Anki x1
+Masked HERO Divine Wind x1
+Masked HERO Acid x1
+Masked HERO Koga x1
+Masked HERO Vapor x1
+Masked HERO Dark Law x1
+Masked HERO Goka x1
+Masked HERO Blast x1
+
+
+Side Deck:
 Wake Up Your Elemental HERO x1
 Contrast HERO Chaos x1
 Elemental HERO Chaos Neos x1
@@ -105,41 +162,24 @@ Elemental HERO Magma Neos x1
 Elemental HERO Neos Kluger x1
 Elemental HERO Core x1
 Elemental HERO Shining Neos Wingman x1
-Elemental HERO Wild Wingman x1
-Elemental HERO Air Neos x1
-Elemental HERO Dark Neos x1
-Elemental HERO Grand Neos x1
-Elemental HERO Aqua Neos x1
-Elemental HERO Brave Neos x1
-Elemental HERO Flare Neos x1
-Elemental HERO Glow Neos x1
-Elemental HERO Sunrise x1
-Elemental HERO Neos Knight x1
-Elemental HERO Thunder Giant x1
-Elemental HERO Gaia x1
-Elemental HERO Flame Wingman x1
-Elemental HERO Darkbright x1
-Elemental HERO Mudballman x1
-
-Side Deck:
 Elemental HERO Tempest x1
 Elemental HERO Marine Neos x1
 Elemental HERO Great Tornado x1
 Elemental HERO Wildedge x1
 Elemental HERO Plasma Vice x1
 Elemental HERO Nova Master x1
-Elemental HERO The Shining x1
-Elemental HERO Shining Flare Wingman x1
-Elemental HERO Shining Phoenix Enforcer x1
-Elemental HERO Escuridao x1
-Elemental HERO Absolute Zero x1
-Elemental HERO Terra Firma x1
-Elemental HERO Inferno x1
-Elemental HERO Flame Wingman - Infernal Rage x1
+Elemental HERO Flare Neos x1
+Elemental HERO Glow Neos x1
+Elemental HERO Sunrise x1
+Elemental HERO Neos Knight x1
+Evil HERO Lightning Golem x1
+Elemental HERO Thunder Giant x1
+Elemental HERO Gaia x1
+Evil HERO Inferno Wing x1
+Elemental HERO Flame Wingman x1
 Elemental HERO Phoenix Enforcer x1
+Evil HERO Inferno Wing - Infernal Backlash x1
 Elemental HERO Rampart Blaster x1
-Elemental HERO Necroid Shaman x1
-Elemental HERO Grandmerge x1
-Elemental HERO Steam Healer x1
-Elemental HERO Mariner x1
-
+Evil HERO Infernal Sniper x1
+Elemental HERO Darkbright x1
+Elemental HERO Mudballman x1

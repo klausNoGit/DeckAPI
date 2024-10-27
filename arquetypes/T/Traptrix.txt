@@ -3,6 +3,7 @@ Traptrix Atrax x1
 Traptrix Dionaea x1
 Traptrix Myrmeleo x1
 Traptrix Mantis x1
+Goblin Pothole Squad x1
 Traptrix Vesiculo x1
 Traptrix Arachnocampa x1
 Traptrix Genlisea x1
@@ -10,12 +11,11 @@ Traptrix Pudica x1
 Traptrix Nepenthes x1
 Traptrip Garden x1
 Void Trap Hole x1
-Time-Space Trap Hole x1
 Trap Hole x1
 D.D. Trap Hole x1
 Deep Dark Trap Hole x1
 Bottomless Trap Hole x1
-Traptrix Trap Hole Nightmare x2
+Traptrix Trap Hole Nightmare x1
 Gravedigger's Trap Hole x1
 Acid Trap Hole x2
 Double Trap Hole x1
@@ -40,4 +40,3 @@ Traptrix Rafflesia x1
 Traptrix Atypus x1
 Traptrix Cularia x1
 Traptrix Sera x1
-

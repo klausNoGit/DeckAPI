@@ -217,6 +217,7 @@ Heroic Challenger
 Heroic Champion
 Hieratic
 Hole
+Horus
 Horus the Black Flame Dragon
 Hyperion
 Ice Barrier
@@ -268,8 +269,7 @@ Machina
 Machine Angel
 Madolche
 Magical Musket
-Magician
-Magician
+"Magician"
 Magician Girl
 Magikey
 Magistus
@@ -300,6 +300,7 @@ Mermail
 Metalfoes
 Metaphys
 Mikanko
+Millennium
 Mist Valley
 Mokey Mokey
 Monarch
@@ -330,10 +331,8 @@ Nordic Beast
 Nordic Relic
 Nouvelles
 Number
-Number
 Number C
 Number C39
-Number S
 Number S
 Numeron
 Numeron Gate
@@ -349,7 +348,7 @@ Paleozoic
 Palladium
 Parshath
 Patissciel
-Pendulum
+Pendulum"
 Pendulum Dragon
 Pendulumgraph
 Penguin
@@ -361,7 +360,7 @@ Phantom Beast
 Phantom Knights
 Photon
 Plunder Patroll
-Polymerization/Fusion
+Polymerization
 Possessed
 Potan
 Power Tool
@@ -370,7 +369,6 @@ Predap
 Predaplant
 Prediction Princess
 Prophecy
-PSY-Frame
 PSY-Frame
 PSY-Framegear
 P.U.N.K.
@@ -405,13 +403,11 @@ Scareclaw
 Scrap
 Sea Stealth
 Secret Six Samurai
-Seven Emperors
 S-Force
 Shaddoll
 Shien
 Shiranui
 Shiranui Spectralsword
-Silenforc
 Silent Magician
 Silent Swordsman
 Simorgh
@@ -437,7 +433,7 @@ Spiritual Water Art
 Spiritual Wind Art
 Spright
 Springans
-sprout
+Sprout
 SPYRAL
 SPYRAL GEAR
 SPYRAL MISSION
@@ -450,7 +446,7 @@ Steelswarm
 Stellarknight
 Subterror
 Subterror Behemoth
-Sun
+Sucata
 Sunavalon
 Sunseed
 Sunvine
@@ -466,7 +462,6 @@ Supreme King Gate
 Swordsoul
 Sylvan
 Symphonic Warrior
-Synchro
 Synchro Dragon
 Synchron
 Tearlaments
@@ -532,7 +527,6 @@ World Legacy
 Worm
 X-Saber
 XX-Saber
-Xyz
 Xyz Dragon
 Yang Zing
 Yosenju

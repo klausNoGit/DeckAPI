@@ -2,9 +2,18 @@ Main Deck:
 The Bystial Lubellion x1
 Albion the Shrouded Dragon x1
 Bystial Saronir x1
+The Golden Swordsoul x1
+Albaz the Ashen x1
+The Bystial Aluber x1
 Aluber the Jester of Despia x2
+Fallen of Albaz x1
 Springans Kitt x1
+Guiding Quem, the Virtuous x1
+Incredible Ecclesia, the Virtuous x1
+Blazing Cartesia, the Virtuous x1
+Tri-Brigade Mercourier x1
 Despian Tragedy x1
+Nadir Servant x1
 Branded Loss x1
 Branded in White x1
 Branded Fusion x1
@@ -17,12 +26,17 @@ Branded in Central Dogmatika x1
 Branded Lost x1
 Branded Regained x1
 Branded Disciple x1
+Decisive Battle of Golgonda x1
+New Frontier x1
 Despia, Theater of the Branded x1
 Branded Expulsion x1
 Branded Banishment x1
+Springans Blast! x1
 Brightest, Blazing, Branded King x1
+Dogmatika Encounter x1
 Screams of the Branded x1
 Branded Sword x1
+Springans Call! x1
 Judgment of the Branded x1
 Branded Beast x1
 Etude of the Branded x1
@@ -31,5 +45,15 @@ Branded Retribution x1
 
 
 Extra Deck:
+Dogmatikalamity Alba System x1
+Albion the Sanctifire Dragon x1
+Mirrorjade the Iceblade Dragon x1
+Lubellion the Searing Dragon x1
+Alba-Lenatus the Abyss Dragon x1
+Despian Quaeritis x1
+Sprind the Irondash Dragon x1
+Brigrand the Glory Dragon x1
+Titaniklad the Ash Dragon x1
+Rindbrumm the Striking Dragon x1
 Albion the Branded Dragon x1
-
+Springans Merrymaker x1
