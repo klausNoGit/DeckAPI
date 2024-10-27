@@ -66,23 +66,19 @@ class BanSheetWeb:
         d = requests.get(self.__END_POINT) if url == None else requests.get(str(url))
         return dict(d.json()) if d.status_code == 200 else { 'error' : 400 }
 
-    def clean_frame(
-        self,
-        data: dict,
-        col: list[str] = ['Card Type', 'Card Name', 'Condition', 'Remarks']
-    ) -> pd.DataFrame:
+    def clean_frame(self, data: dict) -> pd.DataFrame:
         """
         Limpa qualquer folha da planilha e retorna os dados como um DataFrame.
 
         Args:
             data (dict): Dicionário contendo os dados da planilha.
-            col (list): Colunas que serão selecionadas para o DataFrame.
 
         Returns:
             DataFrame: Um DataFrame com os dados da planilha,
             filtrados pelas colunas especificadas.
         """
         df = pd.DataFrame(data['folha'], columns=data['folha'][0])
+        col: list[str] = ['Card Type', 'Card Name', 'Condition', 'Remarks']
         return df[col].copy()
 
     def save(self, data: pd.DataFrame) -> bool:

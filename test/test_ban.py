@@ -38,7 +38,7 @@ def test_ban_async_initialization(ban_async):
     assert isinstance(ban_async, BanSheetWebAsync), "A instância não foi inicializada."
 
 @pytest.mark.asyncio
-async def test_ban_asunc_creat_files(ban_async):
+async def test_ban_async_creat_files(ban_async):
     s = ['Home', 'Forbidden', 'Limited', 'Semi-limited', 'Unlimited']
     result = await ban_async.creat_files(s)
     assert isinstance(result, bool)
