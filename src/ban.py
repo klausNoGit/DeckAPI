@@ -3,6 +3,7 @@
 #
 
 import os
+import shutil
 import asyncio
 import requests
 from typing import Union
@@ -115,6 +116,21 @@ class BanSheetWeb:
         dados = self.request_frame(link)
         return False if ('error' in dados) else self.save(self.clean_frame(dados))
 
+    def var_delete(self) -> bool:
+        """
+        Deleta o diretório 'var' com todo o seu conteúdo,
+        localizado no mesmo diretório deste arquivo.
+
+        Returns:
+            bool: `True` se o diretório foi deletado com sucesso,
+            `False` se o diretório não existir.
+        """
+        atual_dir = os.path.dirname(__file__)
+        dir_var = str(os.path.join(atual_dir, 'var'))
+        if os.path.exists(dir_var) and os.path.isdir(dir_var):
+            shutil.rmtree(dir_var)
+            return True
+        return False
 
 class BanSheetWebAsync:
     """
@@ -170,11 +186,7 @@ class BanSheetWebAsync:
         result = await asyncio.gather(*tasks)
         return result
 
-    async def write_frame(
-        self,
-        frames: list[DataFrame],
-        sheet_names: list[str]
-    ) -> list[str]:
+    async def write_frame(self, frames: list[DataFrame], sheet_names: list[str]) -> list[str]:
         """
         Cria o diretório `/var/` se não existir e salva os DataFrames como arquivos CSV.\n
         Os nomes dos arquivos serão passados na lista `sheet_names`.
@@ -196,8 +208,7 @@ class BanSheetWebAsync:
             f.columns = f.columns.str.replace(' ', '_').str.lower()
             download_path = str(os.path.join(var_dir, f"{name}.csv"))
             stack_paths.append(download_path)
-            f.to_csv(download_path, sep=';', index=False)
-
+            f.to_csv(download_path, sep='|', index=False)
         return stack_paths
 
     async def creat_files(self, sheets: list[str]) -> bool:
@@ -231,12 +242,34 @@ class BanSheetWebAsync:
         """
         return asyncio.run(self.creat_files(f))
 
+    def var_delete(self) -> bool:
+        """
+        Deleta o diretório 'var' com todo o seu conteúdo,
+        localizado no mesmo diretório deste arquivo.
+
+        Returns:
+            bool: `True` se o diretório foi deletado com sucesso,
+            `False` se o diretório não existir.
+        """
+        return self.__BAN_SHEET_WEB__.var_delete()
+
 if __name__ == '__main__':
     ban_web = BanSheetWeb()
+    if ban_web.var_delete():
+        print('"/VAR/" sucess delet')
+    else:
+        print('"/VAR/" not delet')
+
     dados = ban_web.download_banlist()
-    print('Baixei Home') if dados else print('Nao baixei Home')
+    if ban_web.download_banlist():
+        print('Operation success!!!')
+    else:
+        print('Not operation success!!!')
 
     ban = BanSheetWebAsync()
-    sheets = ['Forbbiden', 'Limited', 'Semi-limited', 'Unlimited']
-    mult_dados = ban.async_download_run(sheets)
-    print('Baixei todas da lista') if mult_dados else print('Nao baixei a lista')
+    ban.var_delete()
+    sheets = ['Home', 'Forbidden', 'Limited', 'Semi-limited', 'Unlimited']
+    if ban.async_download_run(sheets):
+        print('Async operation success!!!')
+    else:
+        print('Async not operation success!!!')

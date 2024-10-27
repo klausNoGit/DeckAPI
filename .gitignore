@@ -172,3 +172,4 @@ cython_debug/
 /src/cache/
 /src/jupyter/output
 /src/jupyter/arquetipos_names.xlsx
+/.vscode
