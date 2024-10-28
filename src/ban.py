@@ -263,8 +263,7 @@ if __name__ == '__main__':
         print('Not operation success!!!')
 
     ban = BanSheetWebAsync()
-    ban.var_delete()
-    sheets = ['Home', 'Forbidden', 'Limited', 'Semi-limited', 'Unlimited']
+    sheets = ['Forbidden', 'Limited', 'Semi-limited', 'Unlimited']
     if ban.async_download_run(sheets):
         print('Async operation success!!!')
     else:

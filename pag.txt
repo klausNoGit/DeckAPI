@@ -2,8 +2,12 @@
 min : https://ygoprodeck.com/card-database/?num=100&offset=0
 max : https://ygoprodeck.com/card-database/?num=100&offset=13300
 
+https://images.ygoprodeck.com/images/cards/{number}.jpg
+https://images.ygoprodeck.com/images/cards_small/{number}.jpg
 
 <div id="api-area-results">
 
 <div class="item-area" title="Crystal Shark">
+
+https://images.ygoprodeck.com/images/cards/81439174.jpg
 
