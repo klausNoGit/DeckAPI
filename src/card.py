@@ -243,9 +243,9 @@ if __name__ == '__main__':
         print('Operation success!!!')
     else:
         print('Operation not success!!!')
-    
+
     card_game_async = CardGameAsync()
-    sheets = ['monster', 'spell', 'trap']
+    sheets = ['min', 'complet', 'monster', 'spell', 'trap']
     if card_game_async.async_save_run(sheets):
         print('Async operation success!!!')
     else:
