@@ -1,16 +1,14 @@
 #
 # Python 3.11.10
 #
-import re
 import os
 import math
+from os import PathLike
 from typing import List, Dict, Tuple, Union, Literal
-import pprint
+
+import numpy as np
 import pandas as pd
 from pandas import DataFrame
-import numpy as np
-from matplotlib import pyplot
-from sklearn.linear_model import LinearRegression
 
 from ydke import CoreYDKE
 from card import CardGameAsync
@@ -24,20 +22,9 @@ class MesaCore(CoreYDKE):
         self.__BANLIST_WEB__: BanSheetWeb = BanSheetWeb()
         self.__BANLIST_ASYNC__: BanSheetWebAsync = BanSheetWebAsync()
 
-        self.__YDKE__: str = """
-            ydke://G00sAYMdMQMAJIUDACSFAwAkhQN1/84Cdf/OArLJCQSyyQkET0hwA09IcANPS
-            HADQhKIAkISiAKAoDYAgKA2AICgNgDGn24B51YtAU73dQFO93UBTvd1AbIyzAWyMswFs
-            jLMBSh/EAMofxADKH8QA+OwKgOxYYMEsWGDBLFhgwQRuXEAQf/
-            gAKeIZwFbCb4CJ5XuACeV7gA3ujsFN7o7BQ==!6DUqAug1KgLA9KEAwPShAMD0oQBt10
-            MBbddDASOQswQjkLMEI5CzBB2IkgMdiJID!7I8BAOyPAQDsjwEAgx0xAzvfTAWyyQkEM
-            xh3Auos+QQ3ujsF!
-        """.replace('\n', '').replace('\t', '').replace(' ', '')
-
-        self.card_not_cadastro = None
-
-    def download_mesa(self) -> bool:
+    def download_async_dependencias(self) -> bool:
         """
-        Baixa dados do jogo de cartas e salva as informações necessárias.
+        Baixa dados do jogo e salva as informações necessárias em `cache/` e `var/`.
 
         Returns:
             bool: True se todos os downloads forem bem-sucedidos, False caso contrário.
@@ -50,7 +37,7 @@ class MesaCore(CoreYDKE):
             self.__BANLIST_ASYNC__.async_download_run(sheet_ban)
         ])
 
-    def read_cache_data_frame(self, arq: str) -> DataFrame:
+    def read_cache(self, arq: str, lim: str = ';') -> DataFrame:
         """
         Lê um DataFrame de um arquivo CSV armazenado em cache.
 
@@ -63,72 +50,62 @@ class MesaCore(CoreYDKE):
         Returns:
             DataFrame: DataFrame contendo os dados lidos do arquivo.
         """
-        src = os.path.dirname(__file__)
-        file = os.path.join(src, 'cache', arq)
-        return pd.read_csv(
-            file,
-            sep=';',
-            encoding='utf-8'
-        )
+        file = os.path.join(os.path.dirname(__file__), 'cache', arq)
+        data_frame_cache = pd.read_csv(file, sep=lim, encoding='utf-8')
+        return data_frame_cache
 
-    def read_var_data_frame(self, arq: str) -> DataFrame:
+    def monta_parte_deck(
+        self,
+        part: Literal['main', 'side', 'extra'],
+        array: List[int]
+    ) -> DataFrame:
         """
-        Lê um DataFrame de um arquivo CSV localizado na pasta 'var'.
-
-        A função localiza o arquivo especificado (`arq`) e o carrega em um DataFrame, utilizando o caractere '|' como separador.
-
+        Monta uma das partes do deck passada como argumento, retorna como DataFrame.
+        
         Args:
-            arq (str): Nome do arquivo CSV a ser lido.
-
+            part (Literal['main', 'side', 'extra']) : Parte que será montada.
+            array (List[int]) : Código base 32 bits das cartas.
+        
         Returns:
-            DataFrame: DataFrame contendo os dados lidos do arquivo.
+            Dataframe: Conjunto de dados da parte do deck.
+            - Colunas **constantes** do conjunto retornado:
+                - cod
+                - card_name
+                - tipo
+                - effect
+                - arquetype
+                - qtd_copy
+                - categoria
         """
-        src = os.path.dirname(__file__)
-        file = os.path.join(src, 'var', arq)
-        return pd.read_csv(
-            file,
-            sep='|',
-            encoding='utf-8'
-        )
+        data_frame_complet = self.read_cache('complet.csv')
+        data_frame_complet['cod'] = data_frame_complet['cod'].astype(int)
 
-    def mount_deck(self, cat: str, array: pd.Series | list) -> DataFrame:
-        """
-        Monta um DataFrame do deck com detalhes de cada carta e contagem de ocorrências.
-
-        Args:
-            cat (str): Categoria do deck ('main', 'extra', 'side').
-            array (pd.Series | list): Códigos das cartas.
-
-        Returns:
-            DataFrame: DataFrame com informações das cartas, incluindo contagem e categoria.
-        """
-        complet = self.read_cache_data_frame('complet.csv')
-        complet['cod'] = complet['cod'].astype(int)
-        decklist = []
+        dados_deck_list = []
         for x in array:
-            filtered_df = complet.loc[complet['cod'].isin([x])]
+            carta_encontrada = data_frame_complet.loc[
+                data_frame_complet['cod'].isin([x])]
 
-            if not filtered_df.empty:
-                decklist.append(filtered_df.values[0].tolist())
+            if not carta_encontrada.empty:
+                dados_deck_list.append(carta_encontrada.values[0].tolist())
             else:
-                self.card_not_cadastro = True
-                print(f"Warning: No matching 'cod' found for value: {x}")
+                # Se o código da carta não estiver cadastrado no cache
+                print(f"Warning: Não encontrei em 'cod' o valor: {x}")
 
-        col_patt = ['cod', 'card_name', 'tipo', 'effect', 'arquetype']
-        df = pd.DataFrame(decklist, columns=col_patt)
+        colunas_uteis = ['cod', 'card_name', 'tipo', 'effect', 'arquetype']
+        df = DataFrame(dados_deck_list, columns=colunas_uteis)
+
+        # descobrindo a quantidade de copias de cards
         df['qtd_copy'] = np.ones(df.shape[0], dtype=int)
-        df = df.groupby(col_patt).sum().reset_index()
-        df['categoria'] = np.full(df.shape[0], cat)
-
+        df = df.groupby(colunas_uteis).sum().reset_index()
+        df['categoria'] = np.full(df.shape[0], part)
         df['cod'] = df['cod'].astype(int)
-        df = df.sort_values(by=['cod'])
-        df = df.reset_index(drop=True)
-        return df
+        return df.sort_values(by=['cod']).reset_index(drop=True)
 
-    def read_link_deck(self, link: str) -> Tuple[DataFrame]:
+    def read_link_deck_ydke(self, link: str) -> Tuple[DataFrame, DataFrame, DataFrame]:
         """
-        Lê dados de um deck, identifica arquétipos genéricos
-        e monta as seções `main`, `extra` e `side`.
+        Lê dados de um deck com criptografia YDKE,\n
+        identifica arquétipos genéricos como mini-arquetipos e monta as
+        seções `main`, `extra` e `side`.
 
         Args:
             link (str): URL do deck.
@@ -138,43 +115,56 @@ class MesaCore(CoreYDKE):
         """
         link = link.replace('\n', '').replace(' ', '').replace('\t', '')
         deck = self.read_url(link)
-        mini = self.read_cache_data_frame('min.csv')
-        main = self.mount_deck('main', deck['main'])
-        main['arquetype'] = list(map(
-            lambda x: 'generic' if x in mini['name'].to_list() else x,
-            main['arquetype']
-        ))
-        extra = self.mount_deck('extra', deck['extra'])
-        extra['arquetype'] = list(map(
-            lambda x: 'generic' if x in mini['name'].to_list() else x,
-            extra['arquetype']
-        ))
-        side = self.mount_deck('side', deck['side'])
-        side['arquetype'] = list(map(
-            lambda x: 'generic' if x in mini['name'].to_list() else x,
-            side['arquetype']
-        ))
+        mini_arquetipos = self.read_cache('min.csv')
+
+        classificador = lambda x: 'generic' if any(
+            min in x for min in mini_arquetipos['name']
+        ) else x
+
+        main = self.monta_parte_deck('main', deck['main'])
+        main['arquetype'] = main['arquetype'].apply(classificador)
+
+        extra = self.monta_parte_deck('extra', deck['extra'])
+        extra['arquetype'] = extra['arquetype'].apply(classificador)
+
+        side = self.monta_parte_deck('side', deck['side'])
+        side['arquetype'] = side['arquetype'].apply(classificador)
+
         return main, extra, side
 
-    def frequence_weight(self, part_deck: DataFrame) -> DataFrame:
+
+class Combination(MesaCore):
+    """
+    Estrutura de dados criada para realizar o cálculo de probabilidade de maior
+    frequência de arquétipo no main deck do player. Consiste em atribuições de classificação
+    conforme a regra 2.0 vigente do Mochila Champions acesse -> 
+    (https://encurtador.com.br/eWXru)
+    """
+    def __init__(self, decklist: Union[str, PathLike]) -> None:
         """
-        Calcula a frequência ajustada para cada arquétipo
-        e atribui uma chave absoluta ordenada.
-
-        Agrupa os dados por arquétipo (`arquetype`), soma as cópias (`qtd_copy`)
-        para obter a frequência absoluta e classifica os arquétipos da maior
-        para a menor frequência, atribuindo chaves absolutas (`key_abs`). 
-        Se 'generic' tiver a maior frequência, o valor é ajustado para zero.
-
+        Contem estrutura de atributos para facil ascesso na classe filha `Mesa`
+        
         Args:
-            part_deck (DataFrame): Contém `arquetype` e `qtd_copy`, onde `arquetype`
-            representa o tipo de arquétipo e `qtd_copy` a quantidade
-            de cópias de cada arquétipo.
+            decklist (Union[str, PathLike]) : Link YDKE do deck ou arquivo.
+        """
+        super().__init__()
 
+        if 'ydke://' in decklist:
+            self.main, self.extra, self.side = self.read_link_deck_ydke(decklist)
+            self.arquetipo, self.linear_main = self._construct_main_deck(self.main)
+            self.linear_extra = self._construct_vetor(self.extra)
+            self.linear_side  = self._construct_vetor(self.side)
+
+    def _conta_frequencia_arquetipo_main_deck(self, part_deck: DataFrame) -> DataFrame:
+        """
+        Realiza a separação das colunas essenciais que se relacionam e faz a contagem
+        com chave e valor de frequencia dividida pela base 10 Float.
+        
+        Args:
+            part_deck (DataFrame) : Conjunto de dados do main deck.
+        
         Returns:
-            DataFrame: Atualizado com as colunas:
-                - 'freq_abs': Frequência ajustada (freq_abs / 10) de cada arquétipo.
-                - 'key_abs': Chave numérica absoluta, ordenada da maior para a menor frequência.
+            DataFrame : Main deck com novas colunas de frequencia e chave absoluta
         """
         pares_abs = part_deck[
             ['arquetype', 'qtd_copy']
@@ -182,66 +172,59 @@ class MesaCore(CoreYDKE):
         pares_abs.columns = ['arquetype', 'freq_abs']
         pares_abs = pares_abs.sort_values(by=['freq_abs'], ascending=False)
         
-        # Cria chaves absolutas do maio ao menor
+        # Cria chaves absolutas do maior ao menor
         pares_abs['key_abs'] = range(len(pares_abs), 0, -1)
 
+        # Encontra a maior ocorrencia de arquetipo
         array = pares_abs['freq_abs'].isin([pares_abs['freq_abs'].max()])
         array = pares_abs['arquetype'].loc[array].to_list()
 
+        # Confere se o maior for generic, se for zera ele
         if array[0] == 'generic':
             pares_abs.loc[pares_abs['arquetype'] == 'generic', 'freq_abs'] = 0
         
+        # Coloca em base 10 float e une com merge na parte principal
         pares_abs['freq_abs'] = pares_abs['freq_abs'] / 10
-        # print(pares_abs)
         df_merge = pd.merge(part_deck, pares_abs, how='left', on='arquetype')
         return df_merge.copy()
 
-    def sub_frequence_weight(self, part_deck: DataFrame) -> DataFrame:
+    def _conta_sub_frequence_main_deck(self, part_deck: DataFrame) -> DataFrame:
         """
-        Calcula a frequência ajustada de sub-arquétipos em um conjunto
-        de dados e atribui pesos para cada sub-arquétipo.
-
-        A função extrai os sub-arquétipos de `part_deck`, calcula a frequência
-        de cada um, e ajusta a frequência com base em uma escala de peso.
-        Além disso, configura a chave `sub_key` para cada sub-arquétipo em
-        ordem decrescente de frequência e garante que o valor `sub_key`
-        do arquétipo 'generic' seja zero, caso seja o mais frequente.
-
-        Args
-        ----------
-        part_deck : DataFrame
-            DataFrame contendo uma coluna `arquetype`
-            com sub-arquétipos em formato de string.
-
-        Returns
-        -------
-        DataFrame
-            DataFrame atualizado com duas novas colunas:
-            - 'sub_key': Chave numérica associada a cada sub-arquétipo com base na frequência.
-            - 'sub_freq': Frequência ajustada para cada sub-arquétipo.
+        Executa a contagem de sub palavras no arquetipo divida por tabulação.
+        Zera a combinação se o arquetipo de maior frequencia for 'generic',
+        então cria duas colunas com chave e valor de frequencia
+        dividida pela base 10 Float.
+        
+        Args:
+            part_deck (DataFrame) : Conjunto de dados do main deck.
+        
+        Returns:
+            DataFrame : Main deck com novas colunas de frequencia e chave absoluta
         """
+        # Descompacta string de multiplos arquetipos
+        # em uma lista de contagem de frequencia
         alg_freq = pd.Series('|'.join(
             part_deck.arquetype).replace(' | ', '|').split('|')
         )
         alg_freq = alg_freq.str.split(' ').explode().value_counts(
             ).reset_index(name='freq')
 
+        # Coloca em base 10 float e cria chave de sub frequencia
         alg_freq.columns = ['arquetype', 'sub_freq']
         alg_freq['sub_freq'] = alg_freq['sub_freq'] / 10
         alg_freq['sub_key'] = range(len(alg_freq), 0, -1)
         
-        # zera a combinacao linear de arquetipo generico se for o maior
+        # Zera a combinacao linear de arquetipo do 
+        # tipo 'generic' se ele ainda for o maior
         array = alg_freq['sub_key'] == alg_freq['sub_key'].max()
         array = alg_freq['arquetype'].loc[array].to_list()
         if array[0] == 'generic':
-            alg_freq.loc[
-                alg_freq['sub_key'].isin([alg_freq['sub_key'].max()]),
-                'sub_key'
-            ] = 0
+            alg_freq.loc[alg_freq['sub_key'] == alg_freq['sub_key'].max(), 'sub_key'] = 0
 
         key = []
         frq = []
-        # procura uma palavra menor no conjunto de palavras do arquetipo
+        # Procura uma palavra menor no conjunto de palavras do arquetipo
+        # Para criar uma chave e valor da ocorrencia
         for j in part_deck.arquetype:
             for i in alg_freq.arquetype:
                 if i in j:
@@ -261,298 +244,332 @@ class MesaCore(CoreYDKE):
         part_deck['sub_freq'] = frq
         return part_deck.copy()
 
-    def categoria_linear(self, matrix: DataFrame) -> Dict:
+    def _soma_linear_linhas_matrix(self, matriz: DataFrame) -> DataFrame:
         """
-        Realiza uma classificação linear e aplica uma regressão
-        linear em uma matriz de dados específica.
+        Recolhe das colunas geradas em chave e frequência em uma soma em linhas,
+        depois, cria mais uma coluna com a classificação.
         
-        A função calcula uma soma linear com base em colunas específicas
-        do DataFrame `matrix`, define um valor de referência (meta) e 
-        classifica os dados em três grupos (-1, 0, 1).
-        Em seguida, ajusta um modelo de regressão linear
-        para relacionar as variáveis `key_abs` e `freq_abs`.
-
-        Args
-        ----------
-        matrix : DataFrame
-            DataFrame contendo as colunas
-            `key_abs`, `freq_abs`, `sub_key`, `sub_freq`, e `arquetype`.\n
-            Essas colunas são utilizadas para cálculos de soma e modelo linear.
-
-        Returns
-        -------
-        dict
-            Retorna um dicionário com as seguintes chaves:
-            - `'frame'` : DataFrame
-                O DataFrame atualizado, incluindo as colunas
-                `soma` e `cat_meta_dado` com os valores calculados.
-            - `'model'` : LinearRegression
-                O modelo de regressão linear ajustado
-                às variáveis `key_abs` e `freq_abs`.
-            - `'x'` : numpy.ndarray
-                Valores de `key_abs` usados como variável independente.
-            - `'y'` : numpy.ndarray
-                Valores de `freq_abs` usados como variável dependente.
-            - `'predict'` : numpy.ndarray
-                Valores preditos pelo modelo de regressão linear
-                para os valores de `key_abs`.
+        Args:
+            matriz (DataFrame) : Frame completo do main deck.
+        
+        Returns:
+            DataFrame: Matriz com mais duas colunas, 'soma' e 'cat_meta_dado'.
         """
-        # modo de peso para classificacao linear
+        # Recolhe a matriz de frequencia e chaves 
         col_linear = ['key_abs', 'freq_abs', 'sub_key', 'sub_freq']
-        matrix['soma'] = matrix[col_linear].sum(axis=1)
+        matriz['soma'] = matriz[col_linear].sum(axis=1) # soma das linhas
 
-        meta_dado = matrix.loc[
-            matrix['arquetype'].isin(['generic'])]['soma'].max()
-        if math.isnan(meta_dado):
-            meta_dado = matrix['soma'].mean().round()
-            meta_dado = int(meta_dado)
+        # Recolhe o escalar 'generic', se não tiver 
+        # card 'generic' recolhe a media como escalar
+        escalar_mediunico = matriz.loc[
+            matriz['arquetype'].isin(['generic'])]['soma'].max()
+
+        if math.isnan(escalar_mediunico):
+            escalar_mediunico = int(matriz['soma'].mean().round())
         else:
-            meta_dado = meta_dado.round(2)
-    
-        # categorizacao linear do arquetipo
+            escalar_mediunico = escalar_mediunico.round(2)
+
+        # Primeira categorização do arquetipo com base no escalar
         cat_meta_dado = []
-        for i, v in enumerate(matrix['soma']):
-            if v == meta_dado:
+        for v in matriz['soma']:
+            if v == escalar_mediunico:
                 cat_meta_dado.append(0)
-            elif v < meta_dado:
+            elif v < escalar_mediunico:
                 cat_meta_dado.append(-1)
             else:
                 cat_meta_dado.append(1)
 
-        matrix['cat_meta_dado'] = cat_meta_dado
-        
-        # estrutura de dados de algebra linear
-        x = matrix['key_abs']
-        y = matrix['freq_abs']
-        model = LinearRegression()
-        model.fit(x.values.reshape(-1, 1), y)
-        pred = model.predict(x.values.reshape(-1, 1))
-        return {
-            'frame': matrix.copy(),
-            'model': model,
-            'x': x.to_numpy(),
-            'y': y.to_numpy(),
-            'predict' : pred
-        }
+        matriz['cat_meta_dado'] = cat_meta_dado        
+        return matriz.copy()
 
-    def define_arquetype(self, matrix: DataFrame) -> DataFrame:
+    def _define_meta_dados_arquetipo(self, matriz: DataFrame) -> Tuple[str, DataFrame, DataFrame]:
         """
-        Define archetypes for the given DataFrame based
-        on specific criteria and categorizes them.
+        Define a criação da coluna 'Y' com meta dados de classificação da carta,
+        se ela é do arquetipo, generica ou invalida: [1, 0, -1]
+        
+        Args:
+            matriz (DataFrame) : Frame completo com todas as chaves
+                previamente calculadas.
+        
+        Returns:
+            (Tuple[str, DataFrame, DataFrame]):
+                - str Nome do arquétipo.
+                - DataFrame Frame do deck main original.
+                - DataFrame Matriz linear com eixo Y de classificação.
+        """
+        # Filtra todas as cartas do arquetipo se nao tiver
+        # Então tudo é 'generic'
+        frame_maior_ocorrencia = matriz.loc[matriz['cat_meta_dado'] == 1]
+        if frame_maior_ocorrencia.shape[0] == 0:
+            # Se as linhas forem zero significa que tudo é generico
+            shape_matriz = matriz.shape[0]
+            matriz['y'] = np.zeros(shape_matriz)
+            matriz['arquetype_y'] = np.full(shape_matriz, 'generic')
+
+            # Seleciona conjunto de dados
+            colunas_separadas = [
+                'freq_abs', 'key_abs', 'sub_key',
+                'sub_freq', 'soma', 'cat_meta_dado',
+                'y', 'arquetype_y'
+            ]
+            return 'generic', matriz[colunas_separadas].copy()
+        else:
+            ver_freq = frame_maior_ocorrencia['arquetype'].str.replace('|',' ')
+            ver_freq = ver_freq.str.split(' ')
+            ver_freq = ver_freq.explode().value_counts()
+            ver_freq = ver_freq.reset_index(name='freq')
+
+            # Determina maxima frequencia do arquetipo
+            determinante = ver_freq.loc[ver_freq['freq'] == ver_freq['freq'].max()]
+
+            # Se a frequencia forem iguais concatena e descobre o arquetipo
+            # Se nao, recolhe a maior ocorrencia na primeira posição
+            if len(set(determinante['freq'])) == 1:
+                arquetypo = ' '.join(determinante['arquetype'])
+            else:
+                arquetypo = str(determinante['arquetype'].unique()[0])
+
+            # Classifica arquetipo no DataFrame principal
+            matriz['y'] = matriz['arquetype'].apply(
+                lambda i: 1 if arquetypo in i else (
+                    0 if i == 'generic' else -1)
+                )
+
+            # Mapeia as colunas de classificação com
+            # base no arquetipo encontrado
+            dicio_val = {0: 'generic', 1: arquetypo, -1: 'invalid'}
+            matriz['arquetype_y'] = matriz['y'].apply(lambda x: dicio_val[x])
+
+            # Seleciona conjunto de dados
+            colunas_separadas = [
+                'freq_abs', 'key_abs', 'sub_key',
+                'sub_freq', 'soma', 'cat_meta_dado',
+                'y', 'arquetype_y'
+            ]
+            return arquetypo, matriz[colunas_separadas].copy()
+
+    def _construct_main_deck(self, main_deck: DataFrame) -> Tuple:
+        """
+        Constrói estrutura de dados do deck através do link passado,
+        retorna uma tupla com sequencia de dados do deck. Sendo: **Arquetipo**,
+        **main deck** e **matriz linear**.
 
         Args:
-            matrix (DataFrame): The DataFrame containing the
-            data with archetype information.
+            url_ydke (str) : Link criptografado YDKE do deck.
 
         Returns:
-            DataFrame: A copy of the original DataFrame with added
-            columns 'y' and 'valid' indicating archetype classification.
+            (Tuple[str, DataFrame, DataFrame]):
+                - str Nome do arquétipo.
+                - DataFrame Matriz linear com eixo Y de classificação.
         """
-        # Filter and process archetypes
-        verificador_max = matrix.loc[matrix['cat_meta_dado'] == 1]
-        fim_max_ver = verificador_max.arquetype.str.replace('|',' ')
-        fim_max_ver = fim_max_ver.str.split(' ').explode(
-            ).value_counts().reset_index(name='freq')
+        main = self._conta_frequencia_arquetipo_main_deck(main_deck)
+        main = self._conta_sub_frequence_main_deck(main)
+        main = self._soma_linear_linhas_matrix(main)
+        return self._define_meta_dados_arquetipo(main)
 
-        # Determine the maximum frequency archetype
-        fim_max = fim_max_ver.loc[
-            fim_max_ver['freq'] == fim_max_ver['freq'].max()
-            ]
+    def _construct_vetor(self, matrix: DataFrame) -> np.ndarray:
+        """
+        Cria o vetor linear correspondente ao Y. Função desenvolvida para
+        extra e side.
+        
+        Args:
+            matrix (DataFrame) : Frame do extra ou side deck.
+        
+        Returns:
+            ndarray : Vetor com classificação de arquétipo em [0, 1, -1].
+        """
+        return np.select([
+            matrix['arquetype'] == self.arquetipo,
+            matrix['arquetype'] == 'generic',
+            ~matrix['arquetype'].isin([self.arquetipo, 'generic'])
+        ], [1, 0, -1], default=-1)
 
-        if len(set(fim_max['freq'])) == 1:
-            arquetypo = ' '.join(fim_max['arquetype'])
-        else:
-            arquetypo = fim_max.iloc[0].values[0]
 
-        # Classify archetypes
-        matrix['y'] = matrix['arquetype'].apply(
-            lambda i: 1 if arquetypo in i else (
-                0 if i == 'generic' else -1)
+class Mesa(Combination):
+    def __init__(self, deck_list: Union[str, PathLike]) -> None:
+        super().__init__(deck_list)
+        # Cache para numeros já cálculados
+        self._cache_total_main: Union[None, int] = None
+        self._cache_total_extra: Union[None, int] = None
+        self._cache_total_side: Union[None, int] = None
+        self._cache_total_cartas: Union[None, int] = None
+
+        # Garante que arquetype no main deck original seja o nosso Y correto
+        main_ = self.main.copy()
+        main_['arquetype'] = self.linear_main['arquetype_y']
+        self._cache_main = main_.copy()
+        self._cache_qtd_cartas_arquetype_main: Union[None, int] = None
+        self._cache_qtd_cartas_generic_main: Union[None, int] = None
+        self._cache_qtd_cartas_invalid_main: Union[None, int] = None
+
+        # Garante que arquetype no extra deck original seja o nosso Y correto
+        extra_ = self.extra.copy()
+        extra_['arquetype'] = pd.Series(self.linear_extra).map(
+            {1: self.arquetipo, 0: 'generic', -1: 'invalid'}
+        )
+        self._cache_extra = extra_.copy()
+        self._cache_qtd_cartas_arquetype_extra: Union[None, int] = None
+        self._cache_qtd_cartas_generic_extra: Union[None, int] = None
+        self._cache_qtd_cartas_invalid_extra: Union[None, int] = None
+
+        # Garante que arquetype no side deck original seja o nosso Y correto
+        side_ = self.side.copy()
+        side_['arquetype'] = pd.Series(self.linear_side).map(
+            {1: self.arquetipo, 0: 'generic', -1: 'invalid'}
+        )
+        self._cache_side = side_.copy()
+        self._cache_qtd_cartas_arquetype_side: Union[None, int] = None
+        self._cache_qtd_cartas_generic_side: Union[None, int] = None
+        self._cache_qtd_cartas_invalid_side: Union[None, int] = None
+
+    def _soma_qtd_cartas_frame(self, frame: Literal['main', 'extra', 'side'], comp: str) -> int:
+        """
+        Metodo interno para somar a quantidade de copias das cartas com base no parametro.
+        
+        Args:
+            frame (Literal['main', 'extra', 'side']) : Quadro que será usado no cálculo.
+            comp (str) : String de busca por igualdade -> arquetipo, 'generic' ou 'invalid'
+        
+        Returns:
+            int : Soma quantitativa, resultado da algebra.
+        """
+        if frame == 'main':
+            return int(
+                self._cache_main.loc[
+                    self._cache_main['arquetype'] == comp]['qtd_copy'].sum()
+            )
+        elif frame == 'extra':
+            return int(
+                self._cache_extra.loc[
+                    self._cache_extra['arquetype'] == comp]['qtd_copy'].sum()
+            )
+        elif frame == 'side':
+            return int(
+                self._cache_side.loc[
+                    self._cache_side['arquetype'] == comp]['qtd_copy'].sum()
             )
 
-        # Map classifications to valid labels
-        dicio_val = {0: 'generic', 1: arquetypo, -1: 'invalid'}
-        matrix['y'] = matrix['y'].apply(lambda x: dicio_val[x])
+    @property
+    def total_cartas_main(self) -> int:
+        """Retorna a quantidade total de cartas do main deck."""
+        if self._cache_total_main is None:
+            self._cache_total_main = int(self.main['qtd_copy'].sum(axis=0))
+        return self._cache_total_main
 
+    @property
+    def total_cartas_extra(self) -> int:
+        """Retorna a quantidade total de cartas do extra deck."""
+        if self._cache_total_extra is None:
+            self._cache_total_extra = int(self.extra['qtd_copy'].sum(axis=0))
+        return self._cache_total_extra
+
+    @property
+    def total_cartas_side(self) -> int:
+        """Retorna a quantidade total de cartas do side deck."""
+        if self._cache_total_side is None:
+            self._cache_total_side = int(self.side['qtd_copy'].sum(axis=0))
+        return self._cache_total_side
+
+    @property
+    def total_cartas_deck(self) -> int:
+        """Retorna a quantidade total de cartas do deck."""
+        if self._cache_total_cartas is None:
+            self._cache_total_cartas = self.total_cartas_main + \
+                                            self.total_cartas_extra + \
+                                                self.total_cartas_side
+        return self._cache_total_cartas
+
+    @property
+    def qtd_cartas_arquetype_main(self) -> int:
+        """Retorna a quantidade total de cartas do arquetipo no main deck."""
+        if self._cache_qtd_cartas_arquetype_main is None:
+            self._cache_qtd_cartas_arquetype_main = self._soma_qtd_cartas_frame('main', self.arquetipo)
+        return self._cache_qtd_cartas_arquetype_main
+
+    @property
+    def qtd_cartas_generic_main(self) -> int:
+        """Retorna a quantidade total de cartas genericas no main deck."""
+        if self._cache_qtd_cartas_generic_main is None:
+            self._cache_qtd_cartas_generic_main = self._soma_qtd_cartas_frame('main', 'generic')
+        return self._cache_qtd_cartas_generic_main
+
+    @property
+    def qtd_cartas_invalid_main(self) -> int:
+        """Retorna a quantidade total de cartas invalidas no main deck."""
+        if self._cache_qtd_cartas_invalid_main is None:
+            self._cache_qtd_cartas_invalid_main = self._soma_qtd_cartas_frame('main', 'invalid')
+        return self._cache_qtd_cartas_invalid_main
+
+    @property
+    def qtd_cartas_arquetype_extra(self) -> int:
+        """Retorna a quantidade total de cartas do arquetipo no extra deck."""
+        if self._cache_qtd_cartas_arquetype_extra is None:
+            self._cache_qtd_cartas_arquetype_extra = self._soma_qtd_cartas_frame('extra', self.arquetipo)
+        return self._cache_qtd_cartas_arquetype_extra
+
+    @property
+    def qtd_cartas_generic_extra(self) -> int:
+        """Retorna a quantidade total de cartas genericas no extra deck."""
+        if self._cache_qtd_cartas_generic_extra is None:
+            self._cache_qtd_cartas_generic_extra = self._soma_qtd_cartas_frame('extra', 'generic')
+        return self._cache_qtd_cartas_generic_extra
+
+    @property
+    def qtd_cartas_invalid_extra(self) -> int:
+        """Retorna a quantidade total de cartas invalidas no extra deck."""
+        if self._cache_qtd_cartas_invalid_extra is None:
+            self._cache_qtd_cartas_invalid_extra = self._soma_qtd_cartas_frame('extra', 'invalid')
+        return self._cache_qtd_cartas_invalid_extra
+
+    @property
+    def qtd_cartas_arquetype_side(self) -> int:
+        """Retorna a quantidade total de cartas do arquetipo no side deck."""
+        if self._cache_qtd_cartas_arquetype_side is None:
+            self._cache_qtd_cartas_arquetype_side = self._soma_qtd_cartas_frame('side', self.arquetipo)
+        return self._cache_qtd_cartas_arquetype_side
+
+    @property
+    def qtd_cartas_generic_side(self) -> int:
+        """Retorna a quantidade total de cartas genericas no side deck."""
+        if self._cache_qtd_cartas_generic_side is None:
+            self._cache_qtd_cartas_generic_side = self._soma_qtd_cartas_frame('side', 'generic')
+        return self._cache_qtd_cartas_generic_side
+
+    @property
+    def qtd_cartas_invalid_side(self) -> int:
+        """Retorna a quantidade total de cartas invalidas no side deck."""
+        if self._cache_qtd_cartas_invalid_side is None:
+            self._cache_qtd_cartas_invalid_side = self._soma_qtd_cartas_frame('side', 'invalid')
+        return self._cache_qtd_cartas_invalid_side
+
+    def get_dados_deck(self) -> Dict:
+        """Pega dados quantitativos do deck"""
         return {
-            'main': matrix.copy(),
-            'arquetype': arquetypo
+            'arquetype_main': self.qtd_cartas_arquetype_main,
+            'generic_main': self.qtd_cartas_generic_main,
+            'invalid_main': self.qtd_cartas_invalid_main,
+
+            'arquetype_extra': self.qtd_cartas_arquetype_extra,
+            'generic_extra': self.qtd_cartas_generic_extra,
+            'invalid_extra': self.qtd_cartas_invalid_extra,
+
+            'arquetype_side': self.qtd_cartas_arquetype_side,
+            'generic_side': self.qtd_cartas_generic_side,
+            'invalid_side': self.qtd_cartas_invalid_side
         }
 
-    def construct_deck(self, url_ydke: str) -> Dict:
-        """
-        Constrói uma estrutura de dados com informações detalhadas sobre o deck de Yu-Gi-Oh! baseado em um link YDKe.
-
-        A função realiza as seguintes etapas:
-        - Lê os dados do deck principal (main), extra e side deck a partir do link YDKe.
-        - Identifica e categoriza as cartas do deck principal pelo arquétipo, cartas genéricas e cartas inválidas.
-        - Processa as quantidades de cada tipo de carta para cada seção do deck (main, extra e side).
-        - Retorna um dicionário contendo os dados organizados para fácil acesso e análise.
-
-        Parâmetros:
-        ----------
-        url_ydke : str
-            URL do link YDKe, que fornece a estrutura do deck.
-
-        Retorno:
-        --------
-        Dict
-            Um dicionário com as seguintes chaves e valores:
-            - `arquetype`: str, o arquétipo principal identificado no deck.
-            - `qtd_card_main`: int, quantidade total de cartas no main deck.
-            - `qtd_card_arquetype_main`: int, quantidade de cartas do arquétipo no main deck.
-            - `qtd_card_generic_main`: int, quantidade de cartas genéricas no main deck.
-            - `qtd_card_invalid_main`: int, quantidade de cartas inválidas no main deck.
-            - `arquetype_invalido_main`: str, cartas de arquétipos inválidos no main deck.
-            - `contain_card_invalid_main`: bool, indica se há cartas inválidas no main deck.
-            
-            - `qtd_card_extra`: int, quantidade total de cartas no extra deck.
-            - `qtd_card_arquetype_extra`: int, quantidade de cartas do arquétipo no extra deck.
-            - `qtd_card_generic_extra`: int, quantidade de cartas genéricas no extra deck.
-            - `qtd_card_invalid_extra`: int, quantidade de cartas inválidas no extra deck.
-            - `arquetype_invalido_extra`: str, cartas de arquétipos inválidos no extra deck.
-            - `contain_card_invalid_extra`: bool, indica se há cartas inválidas no extra deck.
-            
-            - `qtd_card_side`: int, quantidade total de cartas no side deck.
-            - `qtd_card_arquetype_side`: int, quantidade de cartas do arquétipo no side deck.
-            - `qtd_card_generic_side`: int, quantidade de cartas genéricas no side deck.
-            - `qtd_card_invalid_side`: int, quantidade de cartas inválidas no side deck.
-            - `arquetype_invalido_side`: str, cartas de arquétipos inválidos no side deck.
-            - `contain_card_invalid_side`: bool, indica se há cartas inválidas no side deck.
-            
-        Exemplo de uso:
-        ---------------
-        ```
-        deck_data = mont_deck('ydke_link')
-        print(deck_data['arquetype'])  # Exibe o arquétipo principal do deck
-        ```
-
-        Considerações:
-        --------------
-        Esta função utiliza diversas funções auxiliares da biblioteca `mesa_core`:
-        - `read_link_deck`: para obter dados do main, extra e side deck.
-        - `sub_frequence_weight` e `frequence_weight`: para ajuste de frequência no deck principal.
-        - `categoria_linear`: para categorizar as cartas do deck.
-        - `define_arquetype`: para identificar o arquétipo principal e distinguir cartas genéricas e inválidas.
-        
-        Observação:
-        -----------
-        Para um deck bem estruturado e competitivo, recomenda-se que a quantidade de cartas inválidas seja zero, garantindo a consistência do arquétipo principal.
-        """
-        main, extra, side = mesa_core.read_link_deck(url_ydke)
-        
-        # limpando main
-        main = mesa_core.sub_frequence_weight(mesa_core.frequence_weight(main))
-        struct_deck = mesa_core.categoria_linear(main)
-        main_arq = mesa_core.define_arquetype(struct_deck['frame'])
-        main = main_arq['main']
-        arquetype = main_arq['arquetype']
-
-        qtd_card_main = main['qtd_copy'].sum()
-
-        qtd_card_arquetype_main = main.loc[
-            main['y'].isin([arquetype])]['qtd_copy'].sum()
-
-        qtd_card_generic_main = main.loc[
-            main['y'].isin(['generic'])]['qtd_copy'].sum()
-
-        qtd_card_invalid_main = main.loc[
-            main['y'].isin(['invalid'])]['qtd_copy'].sum()
-
-        arquetype_invalido_main = main['y'].loc[
-            ~main['y'].isin([arquetype, 'generic'])]
-
-        contain_card_invalid_main = arquetype_invalido_main.values.size != 0
-        if not contain_card_invalid_main:
-            arquetype_invalido_main = ''
-
-        data_main = {
-            'qtd_card_main': int(qtd_card_main),
-            'qtd_card_arquetype_main': int(qtd_card_arquetype_main),
-            'qtd_card_generic_main': int(qtd_card_generic_main),
-            'qtd_card_invalid_main': int(qtd_card_invalid_main),
-            'arquetype_invalido_main': (arquetype_invalido_main),
-            'contain_card_invalid_main': bool(contain_card_invalid_main)
-        }
-
-        # montando extra
-        extra['y'] = extra['arquetype'].apply(
-            lambda a: arquetype if arquetype in a else a)
-
-        qtd_card_extra = extra['qtd_copy'].sum()
-
-        qtd_card_arquetype_extra = extra.loc[
-            extra['y'].isin([arquetype])]['qtd_copy'].sum()
-
-        qtd_card_generic_extra = extra.loc[
-            extra['y'].isin(['generic'])]['qtd_copy'].sum()
-
-        arquetype_invalido_extra = extra['y'].loc[
-            ~extra['y'].isin([arquetype, 'generic'])]
-
-        contain_card_invalid_extra = arquetype_invalido_extra.values.size != 0
-
-        qtd_card_invalid_extra = extra.loc[
-            extra['y'].isin([arquetype_invalido_extra])]['qtd_copy'].sum()
-
-        if not contain_card_invalid_extra:
-            arquetype_invalido_extra = ''
-
-        data_extra = {
-            'qtd_card_extra': int(qtd_card_extra),
-            'qtd_card_arquetype_extra': int(qtd_card_arquetype_extra),
-            'qtd_card_generic_extra': int(qtd_card_generic_extra),
-            'qtd_card_invalid_extra': int(qtd_card_invalid_extra),
-            'arquetype_invalido_extra': arquetype_invalido_extra,
-            'contain_card_invalid_extra': bool(contain_card_invalid_extra)
-        }
-
-        # montando side
-        side['y'] = side['arquetype'].apply(
-            lambda a: arquetype if arquetype in a else a)
-
-        qtd_card_side = side['qtd_copy'].sum()
-
-        qtd_card_arquetype_side = side.loc[
-            side['y'].isin([arquetype])]['qtd_copy'].sum()
-
-        qtd_card_generic_side = side.loc[
-            side['y'].isin(['generic'])]['qtd_copy'].sum()
-
-        arquetype_invalido_side = side['y'].loc[
-            ~side['y'].isin([arquetype, 'generic'])]
-
-        contain_card_invalid_side = arquetype_invalido_side.values.size != 0
-
-        qtd_card_invalid_side = side.loc[
-            side['y'].isin([arquetype_invalido_side])]['qtd_copy'].sum()
-
-        if not contain_card_invalid_side:
-            arquetype_invalido_side = ''
-
-        data_side = {
-            'qtd_card_side': int(qtd_card_side),
-            'qtd_card_arquetype_side': int(qtd_card_arquetype_side),
-            'qtd_card_generic_side': int(qtd_card_generic_side),
-            'qtd_card_invalid_side': int(qtd_card_invalid_side),
-            'arquetype_invalido_side': arquetype_invalido_side,
-            'contain_card_invalid_side': bool(contain_card_invalid_side)
-        }
-        
-        dados = {
-            'arquetype': arquetype,
-        }
-        dados = dados | data_main | data_extra | data_side
-        return dados
-
-# class MasterMesa(MesaCore):
-
+    def show_dados(self):
+        """Mostra dados do deck como tabelas."""
+        valores = self.get_dados_deck()
+        return DataFrame(valores.items(), columns=['status', 'quant'])
 
 if __name__ == '__main__':
-    mesa_core = MesaCore()
-    LINK_YDKE: str = """
-    ydke://G00sAcSMVgPEjFYDxIxWA4MdMQMAJIUDACSFAwAkhQN1/84Cdf/OArLJCQSyyQkET0hwA09IcANPSHADQhKIAkISiAKAoDYAgKA2AICgNgDGn24B51YtAU73dQFO93UBTvd1ASh/EAMofxADKH8QA+OwKgOxYYMEsWGDBLFhgwQRuXEAQf/gAKeIZwFbCb4CJ5XuACeV7gA3ujsFN7o7BQ==!6DUqAug1KgLA9KEAwPShAMD0oQAo29AE2NxoAW3XQwFt10MB0htBASOQswQjkLMEI5CzBB2IkgMdiJID!7I8BAOyPAQDsjwEAsskJBLIyzAWyMswFsjLMBaab9AEzGHcC6iz5BBLZoAIS2aACo2rUAqNq1AI3ujsF!
+    URL_DECK = """
+    ydke://C48wAfuScQP7knEDzjaEA842hAPONoQDCHOfBAhznwQIc58Eb6yZAPqbiwP6m4sD+puLA5GVXASRlVwEkZVcBISkEQK7osEFu6LBBbuiwQUGB1kDR0WxBUdFsQVHRbEFRdxkAtWOCgDVjgoA1Y4KAIaSaADZVx8EitmnBYrZpwWK2acFxpwjA8acIwMbzoABG86AARvOgAEeC/IDHgvyAw==!l77AApuGHwGbhh8BL+9IAC/vSADOAs0Dyj9gAZ+QagBes+cCT+HsBEdMywFHTMsB0htBATrQ2AU60NgF!sskJBLLJCQSyyQkEleL6BLIyzAWyMswFsjLMBZuGHwFHTMsBI9adAiPWnQIj1p0CJNYmAh4L8gM=!
     """
 
-    dados = mesa_core.construct_deck(LINK_YDKE)
-    pprint.pprint(dados)
+    mesa_core = Mesa(URL_DECK)
+    print(mesa_core.show_dados())
+    print(mesa_core._cache_main)
+    print(mesa_core._cache_extra)
+    print(mesa_core._cache_side)
