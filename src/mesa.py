@@ -378,6 +378,12 @@ class Combination(MesaCore):
         Returns:
             ndarray : Vetor com classificação de arquétipo em [0, 1, -1].
         """
+        # Substitui valores que contêm o nome do arquétipo por `self.arquetipo`
+        # Debuga arquetipos multiplicados ex: DDD | Dark Contract | DD
+        matrix['arquetype'] = matrix['arquetype'].apply(
+            lambda x: self.arquetipo if self.arquetipo in x else x
+        )
+
         return np.select([
             matrix['arquetype'] == self.arquetipo,
             matrix['arquetype'] == 'generic',
@@ -388,6 +394,9 @@ class Combination(MesaCore):
 class Mesa(Combination):
     def __init__(self, deck_list: Union[str, PathLike]) -> None:
         super().__init__(deck_list)
+        # Cache de criptografia do deck, independente a arquivos passados como argumento
+        self._cache_ydke: Union[None, str] = None
+
         # Cache para numeros já cálculados
         self._cache_total_main: Union[None, int] = None
         self._cache_total_extra: Union[None, int] = None
@@ -421,6 +430,50 @@ class Mesa(Combination):
         self._cache_qtd_cartas_arquetype_side: Union[None, int] = None
         self._cache_qtd_cartas_generic_side: Union[None, int] = None
         self._cache_qtd_cartas_invalid_side: Union[None, int] = None
+
+        # Caches de relacionamento total
+        self._cache_total_arquetipo: Union[None, int] = None
+        self._cache_total_generic: Union[None, int] = None
+        self._cache_total_invalid: Union[None, int] = None
+
+    @property
+    def ydke(self) -> str:
+        """Retorna a criptografica do deck."""
+        if self._cache_ydke is None:
+            main = np.repeat(
+                self._cache_main['cod'], self._cache_main['qtd_copy']
+            ).tolist()
+
+            extra = np.repeat(
+                self._cache_extra['cod'], self._cache_extra['qtd_copy']
+            ).tolist()
+
+            side = np.repeat(
+                self._cache_side['cod'], self._cache_side['qtd_copy']
+            ).tolist()
+
+            self._cache_ydke = self.to_url({
+                'main': main,
+                'extra': extra,
+                'side': side
+            })
+        return self._cache_ydke
+
+    def cache_main(self) -> DataFrame:
+        """Retorna o frame do main deck mais atualizado em cache."""
+        return self._cache_main
+
+    def cache_extra(self) -> DataFrame:
+        """Retorna o frame do extra deck mais atualizado em cache."""
+        return self._cache_extra
+
+    def cache_side(self) -> DataFrame:
+        """Retorna o frame do side deck mais atualizado em cache."""
+        return self._cache_side
+
+    def decklist(self) -> DataFrame:
+        """Retorna a deck-list completa, com main, extra e side."""
+        return pd.concat([self._cache_main, self._cache_extra, self._cache_side], axis=0)
 
     def _soma_qtd_cartas_frame(self, frame: Literal['main', 'extra', 'side'], comp: str) -> int:
         """
@@ -469,6 +522,33 @@ class Mesa(Combination):
         if self._cache_total_side is None:
             self._cache_total_side = int(self.side['qtd_copy'].sum(axis=0))
         return self._cache_total_side
+
+    @property
+    def total_cartas_arquetipo(self) -> int:
+        """Retorna o total de cartas do arquétipo em todo o deck."""
+        if self._cache_total_arquetipo is None:
+            self._cache_total_arquetipo = self.qtd_cartas_arquetype_main + \
+                                            self.qtd_cartas_arquetype_extra + \
+                                                self.qtd_cartas_arquetype_side
+        return self._cache_total_arquetipo
+
+    @property
+    def total_cartas_generic(self) -> int:
+        """Retorna o total de cartas genericas em todo o deck."""
+        if self._cache_total_generic is None:
+            self._cache_total_generic = self.qtd_cartas_generic_main + \
+                                            self.qtd_cartas_generic_extra + \
+                                                self.qtd_cartas_generic_side
+        return self._cache_total_generic
+
+    @property
+    def total_cartas_invalid(self) -> int:
+        """Retorna o total de cartas invalidas em todo o deck."""
+        if self._cache_total_invalid is None:
+            self._cache_total_invalid = self.qtd_cartas_invalid_main + \
+                                            self.qtd_cartas_invalid_extra + \
+                                                self.qtd_cartas_invalid_side
+        return self._cache_total_invalid
 
     @property
     def total_cartas_deck(self) -> int:
@@ -542,8 +622,17 @@ class Mesa(Combination):
             self._cache_qtd_cartas_invalid_side = self._soma_qtd_cartas_frame('side', 'invalid')
         return self._cache_qtd_cartas_invalid_side
 
+    def cartas_invalidas(self) -> DataFrame:
+        """Analisa todo o deck em busca de cartas invalidas por arquétipo."""
+        deck_completo = self.decklist()
+        return deck_completo.loc[deck_completo['arquetype'] == 'invalid'].reset_index(drop=True)
+
+    def cartas_invalidas_dict(self) -> Dict:
+        """Retorna todas as cartas invalidas do arquétipo como dicionário."""
+        return self.cartas_invalidas().to_dict(orient='list')
+
     def get_dados_deck(self) -> Dict:
-        """Pega dados quantitativos do deck"""
+        """Pega todos os dados quantitativos do deck."""
         return {
             'arquetype_main': self.qtd_cartas_arquetype_main,
             'generic_main': self.qtd_cartas_generic_main,
@@ -558,18 +647,14 @@ class Mesa(Combination):
             'invalid_side': self.qtd_cartas_invalid_side
         }
 
-    def show_dados(self):
-        """Mostra dados do deck como tabelas."""
-        valores = self.get_dados_deck()
-        return DataFrame(valores.items(), columns=['status', 'quant'])
+    def show_dados(self) -> None:
+        """Mostra todas as estruturas de dados do deck como tabelas."""
+        print(DataFrame(self.get_dados_deck().items(), columns=['status', 'quant']))
 
 if __name__ == '__main__':
     URL_DECK = """
-    ydke://C48wAfuScQP7knEDzjaEA842hAPONoQDCHOfBAhznwQIc58Eb6yZAPqbiwP6m4sD+puLA5GVXASRlVwEkZVcBISkEQK7osEFu6LBBbuiwQUGB1kDR0WxBUdFsQVHRbEFRdxkAtWOCgDVjgoA1Y4KAIaSaADZVx8EitmnBYrZpwWK2acFxpwjA8acIwMbzoABG86AARvOgAEeC/IDHgvyAw==!l77AApuGHwGbhh8BL+9IAC/vSADOAs0Dyj9gAZ+QagBes+cCT+HsBEdMywFHTMsB0htBATrQ2AU60NgF!sskJBLLJCQSyyQkEleL6BLIyzAWyMswFsjLMBZuGHwFHTMsBI9adAiPWnQIj1p0CJNYmAh4L8gM=!
+    ydke://+RBYBPkQWARmAR4AZgEeADxWTgU8Vk4FByR0AsQ7RwXEO0cFsskJBLLJCQSQVpABkFaQAZBWkAHcAOIB3ADiAck9MgPJPTIDYoDUBOPWpADj1qQA49akAE73dQFO93UBsjLMBbIyzAU+SKIBPkiiAT5IogHjsCoDJusABNX21gDV9tYAI9adAiPWnQLfFi8D3xYvA8/v0ATP79AEz+/QBA==!Ebm4BWHRwQHNW4wFzVuMBc1bjAXADkkCiVRyAaSaKwAAuQgEALkIBAC5CAT5UX8Ei0cbA6KjRATbI+sD!sskJBE73dQGyMswF2FMgAdhTIAHV9tYAI9adAmhMRAPfFi8DZJ/NBGSfzQRkn80EIe4tAyHuLQMh7i0D!
     """
 
     mesa_core = Mesa(URL_DECK)
-    print(mesa_core.show_dados())
-    print(mesa_core._cache_main)
-    print(mesa_core._cache_extra)
-    print(mesa_core._cache_side)
+    mesa_core.show_dados()
