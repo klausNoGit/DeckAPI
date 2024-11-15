@@ -53,7 +53,6 @@ Invoked
 Iron Chain
 Kairyu-Shin
 Kangaroo
-Karakuri
 Knightmare
 Koala
 Kozmo
@@ -62,9 +61,7 @@ Lady of Lament
 Laundsallyn
 Legendary Dragon
 Legendary Knight
-Lightsworn
-Lunalight
-"Magician"
+Magician
 Majestic
 Malicevorous
 Materiactor
@@ -90,7 +87,7 @@ Paleozoic
 Palladium
 Parshath
 Patissciel
-Pendulum"
+Pendulum
 Pendulum Dragon
 Pendulumgraph
 Phantasm
