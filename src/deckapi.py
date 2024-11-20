@@ -60,29 +60,19 @@ class FrameDeck(Combination):
         self._cache_total_arquetipo: Union[None, int] = None
         self._cache_total_generic: Union[None, int] = None
         self._cache_total_invalid: Union[None, int] = None
+        
+        # Caches para quantidades detalhadas do deck
+        self._cache_qtd_monster_main: Union[None, int] = None
+        self._cache_qtd_monster_arquetype_main: Union[None, int] = None
+        self._cache_qtd_monster_generic_main: Union[None, int] = None
 
-    @property
-    def ydke(self) -> str:
-        """Retorna a criptografica do deck."""
-        if self._cache_ydke is None:
-            main = np.repeat(
-                self._cache_main['cod'], self._cache_main['qtd_copy']
-            ).tolist()
+        self._cache_qtd_spell_main: Union[None, int] = None
+        self._cache_qtd_spell_arquetype_main: Union[None, int] = None
+        self._cache_qtd_spell_generic_main: Union[None, int] = None
 
-            extra = np.repeat(
-                self._cache_extra['cod'], self._cache_extra['qtd_copy']
-            ).tolist()
-
-            side = np.repeat(
-                self._cache_side['cod'], self._cache_side['qtd_copy']
-            ).tolist()
-
-            self._cache_ydke = self.to_url({
-                'main': main,
-                'extra': extra,
-                'side': side
-            })
-        return self._cache_ydke
+        self._cache_qtd_trap_main: Union[None, int] = None
+        self._cache_qtd_trap_arquetype_main: Union[None, int] = None
+        self._cache_qtd_trap_generic_main: Union[None, int] = None
 
     def cache_main(self) -> DataFrame:
         """Retorna o frame do main deck mais atualizado em cache."""
@@ -114,17 +104,20 @@ class FrameDeck(Combination):
         if frame == 'main':
             return int(
                 self._cache_main.loc[
-                    self._cache_main['arquetype'] == comp]['qtd_copy'].sum()
+                    self._cache_main['arquetype'] == comp
+                ]['qtd_copy'].sum()
             )
         elif frame == 'extra':
             return int(
                 self._cache_extra.loc[
-                    self._cache_extra['arquetype'] == comp]['qtd_copy'].sum()
+                    self._cache_extra['arquetype'] == comp
+                ]['qtd_copy'].sum()
             )
         elif frame == 'side':
             return int(
                 self._cache_side.loc[
-                    self._cache_side['arquetype'] == comp]['qtd_copy'].sum()
+                    self._cache_side['arquetype'] == comp
+                ]['qtd_copy'].sum()
             )
 
     @property
@@ -247,6 +240,129 @@ class FrameDeck(Combination):
             self._cache_qtd_cartas_invalid_side = self._soma_qtd_cartas_frame('side', 'invalid')
         return self._cache_qtd_cartas_invalid_side
 
+    @property
+    def qtd_monster_main(self) -> int:
+        """Retorna a quantidade de monstros no main deck pela quantidade de copias."""
+        if self._cache_qtd_monster_main is None:
+            cache_deck_main = self.cache_main()
+
+            self._cache_qtd_monster_main = int(
+                cache_deck_main.loc[
+                    cache_deck_main['tipo'].apply(lambda x: 'Monster' in x)
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_monster_main
+
+    @property
+    def qtd_monster_arquetype_main(self) -> int:
+        """Retorna a quantidade de monstros do arquetipo no main deck pela quantidade de copias."""
+        if self._cache_qtd_monster_arquetype_main is None:
+            cache_deck_main = self.cache_main()
+
+            self._cache_qtd_monster_arquetype_main = int(
+                cache_deck_main.loc[
+                    (cache_deck_main['tipo'].apply(lambda x: 'Monster' in x)) &
+                    (cache_deck_main['arquetype'].isin([self.arquetipo]))
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_monster_arquetype_main
+    
+    @property
+    def qtd_monster_generic_main(self) -> int:
+        """Retorna a quantidade de monstros genericos do main deck pela quantidade de copias."""
+        if self._cache_qtd_monster_generic_main is None:
+            cache_deck_main = self.cache_main()
+
+            self._cache_qtd_monster_generic_main = int(
+                cache_deck_main.loc[
+                    (cache_deck_main['tipo'].apply(lambda x: 'Monster' in x)) &
+                    (cache_deck_main['arquetype'].isin(['generic']))
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_monster_generic_main
+
+    @property
+    def qtd_spell_main(self) -> int:
+        """Retorna a quantidade de cartas magicas do main deck."""
+        if self._cache_qtd_spell_main is None:
+            cache_main_deck = self.cache_main()
+            
+            self._cache_qtd_spell_main = int(
+                cache_main_deck.loc[
+                    cache_main_deck['tipo'] == 'Spell'
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_spell_main
+
+    @property
+    def qtd_spell_arquetype_main(self) -> int:
+        """Retorna a quantidade de cartas magicas do arquetipo no main deck."""
+        if self._cache_qtd_spell_arquetype_main is None:
+            cache_main_deck = self.cache_main()
+            
+            self._cache_qtd_spell_arquetype_main = int(
+                cache_main_deck.loc[
+                    (cache_main_deck['tipo'] == 'Spell') &
+                    (cache_main_deck['arquetype'].isin([self.arquetipo]))
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_spell_arquetype_main
+
+    @property
+    def qtd_spell_generic_main(self) -> int:
+        """Retorna a quantidade de cartas magicas genericas do main deck."""
+        if self._cache_qtd_spell_generic_main is None:
+            cache_main_deck = self.cache_main()
+
+            self._cache_qtd_spell_generic_main = int(
+                cache_main_deck.loc[
+                    (cache_main_deck['tipo'] == 'Spell') &
+                    (cache_main_deck['arquetype'].isin(['generic']))
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_spell_generic_main
+
+    @property
+    def qtd_trap_main(self) -> int:
+        """Retorna a quantidade de cartas de armadilha do main deck."""
+        if self._cache_qtd_trap_main is None:
+            cache_main_deck = self.cache_main()
+            
+            self._cache_qtd_trap_main = int(
+                cache_main_deck.loc[
+                    cache_main_deck['tipo'] == 'Trap'
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_trap_main
+
+    @property
+    def qtd_trap_arquetype_main(self) -> int:
+        """Retorna a quantidade de cartas de armadilha do arquetipo no main deck."""
+        if self._cache_qtd_trap_arquetype_main is None:
+            cache_main_deck = self.cache_main()
+            
+            self._cache_qtd_trap_arquetype_main = int(
+                cache_main_deck.loc[
+                    (cache_main_deck['tipo'] == 'Trap') &
+                    (cache_main_deck['arquetype'].isin([self.arquetipo]))
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_trap_arquetype_main
+
+    @property
+    def qtd_trap_generic_main(self) -> int:
+        """Retorna a quantidade de cartas de armadilha genericas do main deck."""
+        if self._cache_qtd_trap_generic_main is None:
+            cache_main_deck = self.cache_main()
+
+            self._cache_qtd_trap_generic_main = int(
+                cache_main_deck.loc[
+                    (cache_main_deck['tipo'] == 'Trap') &
+                    (cache_main_deck['arquetype'].isin(['generic']))
+                ]['qtd_copy'].sum(axis=0)
+            )
+        return self._cache_qtd_trap_generic_main
+
     def cartas_invalidas(self) -> DataFrame:
         """Analisa todo o deck em busca de cartas invalidas por arquétipo."""
         deck_completo = self.decklist()
@@ -255,6 +371,10 @@ class FrameDeck(Combination):
     def cartas_invalidas_dict(self) -> Dict:
         """Retorna todas as cartas invalidas do arquétipo como dicionário."""
         return self.cartas_invalidas().to_dict(orient='list')
+
+    def get_dicio_deck(self) -> Dict:
+        """Retorna o dicionario do deck."""
+        return self.read_url(self.YDKE)
 
     def get_dados_deck(self) -> Dict:
         """Pega todos os dados quantitativos do deck."""
@@ -278,8 +398,11 @@ class FrameDeck(Combination):
 
 if __name__ == '__main__':
     URL_DECK = """
-    ydke://+RBYBPkQWARmAR4AZgEeADxWTgU8Vk4FByR0AsQ7RwXEO0cFsskJBLLJCQSQVpABkFaQAZBWkAHcAOIB3ADiAck9MgPJPTIDYoDUBOPWpADj1qQA49akAE73dQFO93UBsjLMBbIyzAU+SKIBPkiiAT5IogHjsCoDJusABNX21gDV9tYAI9adAiPWnQLfFi8D3xYvA8/v0ATP79AEz+/QBA==!Ebm4BWHRwQHNW4wFzVuMBc1bjAXADkkCiVRyAaSaKwAAuQgEALkIBAC5CAT5UX8Ei0cbA6KjRATbI+sD!sskJBE73dQGyMswF2FMgAdhTIAHV9tYAI9adAmhMRAPfFi8DZJ/NBGSfzQRkn80EIe4tAyHuLQMh7i0D!
+    ydke://ZgEeAGYBHgA8Vk4FPFZOBQckdALEO0cFxDtHBbLJCQSyyQkEkFaQAZBWkAGQVpAB3ADiAdwA4gHJPTIDyT0yA2KA1ATj1qQA49akAOPWpABO93UBTvd1AbIyzAWyMswFPkiiAT5IogE+SKIB47AqAybrAATV9tYA1fbWAA31DAEN9QwBDfUMAd8WLwPfFi8D3xYvA8/v0ATP79AEz+/QBA==!Ebm4BWHRwQHNW4wFzVuMBc1bjAXADkkCiVRyAaSaKwAAuQgEALkIBAC5CAT5UX8Ei0cbA6KjRATbI+sD!7I8BAOyPAQDsjwEAsskJBE73dQGyMswF7ydRAO8nUQDV9tYAI9adAiPWnQJoTEQDIe4tAyHuLQMh7i0D!
     """
 
     core_deck = FrameDeck(URL_DECK)
-    core_deck.show_dados()
+    print(core_deck.YDKE)
+    print(core_deck.qtd_trap_main)
+    print(core_deck.qtd_trap_arquetype_main)
+    print(core_deck.qtd_trap_generic_main)
