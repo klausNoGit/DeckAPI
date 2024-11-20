@@ -150,10 +150,23 @@ class Combination(MesaCore):
         super().__init__()
 
         if 'ydke://' in decklist:
-            self.main, self.extra, self.side = self.read_link_deck_ydke(decklist)
+            self.YDKE: str = decklist.strip().replace(' ', '')
+            self.main, self.extra, self.side = self.read_link_deck_ydke(self.YDKE)
             self.arquetipo, self.linear_main = self._construct_main_deck(self.main)
             self.linear_extra = self._construct_vetor(self.extra)
             self.linear_side  = self._construct_vetor(self.side)
+        else:
+            caminho_absoluto = os.path.abspath(decklist)
+            if os.path.exists(caminho_absoluto) and '.ydk' in decklist:
+                deck_list = self.read_file_deck(caminho_absoluto)
+                self.YDKE: str = self.to_url(deck_list).strip().replace(' ', '')
+
+                self.main, self.extra, self.side = self.read_link_deck_ydke(self.YDKE)
+                self.arquetipo, self.linear_main = self._construct_main_deck(self.main)
+                self.linear_extra = self._construct_vetor(self.extra)
+                self.linear_side  = self._construct_vetor(self.side)
+            else:
+                raise ValueError(f'Parameter invalid : {decklist}')
 
     def _conta_frequencia_arquetipo_main_deck(self, part_deck: DataFrame) -> DataFrame:
         """
@@ -282,7 +295,7 @@ class Combination(MesaCore):
         matriz['cat_meta_dado'] = cat_meta_dado        
         return matriz.copy()
 
-    def _define_meta_dados_arquetipo(self, matriz: DataFrame) -> Tuple[str, DataFrame, DataFrame]:
+    def _define_meta_dados_arquetipo(self, matriz: DataFrame) -> Tuple[str, DataFrame]:
         """
         Define a criação da coluna 'Y' com meta dados de classificação da carta,
         se ela é do arquetipo, generica ou invalida: [1, 0, -1]
@@ -292,9 +305,8 @@ class Combination(MesaCore):
                 previamente calculadas.
         
         Returns:
-            (Tuple[str, DataFrame, DataFrame]):
+            (Tuple[str, DataFrame]):
                 - str Nome do arquétipo.
-                - DataFrame Frame do deck main original.
                 - DataFrame Matriz linear com eixo Y de classificação.
         """
         # Filtra todas as cartas do arquetipo se nao tiver
@@ -348,7 +360,7 @@ class Combination(MesaCore):
             ]
             return arquetypo, matriz[colunas_separadas].copy()
 
-    def _construct_main_deck(self, main_deck: DataFrame) -> Tuple:
+    def _construct_main_deck(self, main_deck: DataFrame) -> Tuple[str, DataFrame]:
         """
         Constrói estrutura de dados do deck através do link passado,
         retorna uma tupla com sequencia de dados do deck. Sendo: **Arquetipo**,
@@ -358,7 +370,7 @@ class Combination(MesaCore):
             url_ydke (str) : Link criptografado YDKE do deck.
 
         Returns:
-            (Tuple[str, DataFrame, DataFrame]):
+            (Tuple[str, DataFrame]):
                 - str Nome do arquétipo.
                 - DataFrame Matriz linear com eixo Y de classificação.
         """
@@ -391,5 +403,18 @@ class Combination(MesaCore):
         ], [1, 0, -1], default=-1)
 
 if __name__ == '__main__':
-    construct = Combination()
-    
+    # caminho do arquivo
+    SRC = os.path.dirname(__file__)
+    DECKS = SRC.replace('src', 'decks')
+    exemplo = os.path.join(DECKS, '_dogmatica.ydk')
+
+    construct = Combination(exemplo)
+    print(construct.ydke)
+    print('\n')
+    print(construct.arquetipo)
+    print('\n')
+    print(construct.main)
+    print('\n')
+    print(construct.extra)
+    print('\n')
+    print(construct.side)

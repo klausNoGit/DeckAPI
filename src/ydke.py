@@ -81,7 +81,8 @@ class CoreYDKE:
             ydke (str): A URL YDKE -> `'ydke://mainDeck!extraDeck!sideDeck!'`.
 
         Returns:
-            -Dict[str, List[int]] | str: Um dicionário contendo três listas de inteiros,\nrepresentando os decks `'main', 'extra'` e `'side'`. Ou String de `error`.
+            -Dict[str, List[int]] | str: Um dicionário contendo três listas de inteiros,
+                representando os decks `'main', 'extra'` e `'side'`. Ou String de `error`.
 
         Raises:
             ValueError: Se a URL não começar com `'ydke://'` ou se não contiver\n
