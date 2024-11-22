@@ -90,36 +90,6 @@ class FrameDeck(Combination):
         """Retorna a deck-list completa, com main, extra e side."""
         return pd.concat([self._cache_main, self._cache_extra, self._cache_side], axis=0)
 
-    def _soma_qtd_cartas_frame(self, frame: Literal['main', 'extra', 'side'], comp: str) -> int:
-        """
-        Metodo interno para somar a quantidade de copias das cartas com base no parametro.
-        
-        Args:
-            frame (Literal['main', 'extra', 'side']) : Quadro que será usado no cálculo.
-            comp (str) : String de busca por igualdade -> arquetipo, 'generic' ou 'invalid'
-        
-        Returns:
-            int : Soma quantitativa, resultado da algebra.
-        """
-        if frame == 'main':
-            return int(
-                self._cache_main.loc[
-                    self._cache_main['arquetype'] == comp
-                ]['qtd_copy'].sum()
-            )
-        elif frame == 'extra':
-            return int(
-                self._cache_extra.loc[
-                    self._cache_extra['arquetype'] == comp
-                ]['qtd_copy'].sum()
-            )
-        elif frame == 'side':
-            return int(
-                self._cache_side.loc[
-                    self._cache_side['arquetype'] == comp
-                ]['qtd_copy'].sum()
-            )
-
     @property
     def total_cartas_main(self) -> int:
         """Retorna a quantidade total de cartas do main deck."""
@@ -181,63 +151,99 @@ class FrameDeck(Combination):
     def qtd_cartas_arquetype_main(self) -> int:
         """Retorna a quantidade total de cartas do arquetipo no main deck."""
         if self._cache_qtd_cartas_arquetype_main is None:
-            self._cache_qtd_cartas_arquetype_main = self._soma_qtd_cartas_frame('main', self.arquetipo)
+            self._cache_qtd_cartas_arquetype_main = int(
+                self._cache_main.loc[
+                    self._cache_main['arquetype'] == self.arquetipo
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_arquetype_main
 
     @property
     def qtd_cartas_generic_main(self) -> int:
         """Retorna a quantidade total de cartas genericas no main deck."""
         if self._cache_qtd_cartas_generic_main is None:
-            self._cache_qtd_cartas_generic_main = self._soma_qtd_cartas_frame('main', 'generic')
+            self._cache_qtd_cartas_generic_main = int(
+                self._cache_main.loc[
+                    self._cache_main['arquetype'] == 'generic'
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_generic_main
 
     @property
     def qtd_cartas_invalid_main(self) -> int:
         """Retorna a quantidade total de cartas invalidas no main deck."""
         if self._cache_qtd_cartas_invalid_main is None:
-            self._cache_qtd_cartas_invalid_main = self._soma_qtd_cartas_frame('main', 'invalid')
+            self._cache_qtd_cartas_invalid_main = int(
+                self._cache_main.loc[
+                    self._cache_main['arquetype'] == 'invalid'
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_invalid_main
 
     @property
     def qtd_cartas_arquetype_extra(self) -> int:
         """Retorna a quantidade total de cartas do arquetipo no extra deck."""
         if self._cache_qtd_cartas_arquetype_extra is None:
-            self._cache_qtd_cartas_arquetype_extra = self._soma_qtd_cartas_frame('extra', self.arquetipo)
+            self._cache_qtd_cartas_arquetype_extra = int(
+                self._cache_extra.loc[
+                    self._cache_extra['arquetype'] == self.arquetipo
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_arquetype_extra
 
     @property
     def qtd_cartas_generic_extra(self) -> int:
         """Retorna a quantidade total de cartas genericas no extra deck."""
         if self._cache_qtd_cartas_generic_extra is None:
-            self._cache_qtd_cartas_generic_extra = self._soma_qtd_cartas_frame('extra', 'generic')
+            self._cache_qtd_cartas_generic_extra = int(
+                self._cache_extra.loc[
+                    self._cache_extra['arquetype'] == 'generic'
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_generic_extra
 
     @property
     def qtd_cartas_invalid_extra(self) -> int:
         """Retorna a quantidade total de cartas invalidas no extra deck."""
         if self._cache_qtd_cartas_invalid_extra is None:
-            self._cache_qtd_cartas_invalid_extra = self._soma_qtd_cartas_frame('extra', 'invalid')
+            self._cache_qtd_cartas_invalid_extra = int(
+                self._cache_extra.loc[
+                    self._cache_extra['arquetype'] == 'invalid'
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_invalid_extra
 
     @property
     def qtd_cartas_arquetype_side(self) -> int:
         """Retorna a quantidade total de cartas do arquetipo no side deck."""
         if self._cache_qtd_cartas_arquetype_side is None:
-            self._cache_qtd_cartas_arquetype_side = self._soma_qtd_cartas_frame('side', self.arquetipo)
+            self._cache_qtd_cartas_arquetype_side = int(
+                self._cache_side.loc[
+                    self._cache_side['arquetype'] == self.arquetipo
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_arquetype_side
 
     @property
     def qtd_cartas_generic_side(self) -> int:
         """Retorna a quantidade total de cartas genericas no side deck."""
         if self._cache_qtd_cartas_generic_side is None:
-            self._cache_qtd_cartas_generic_side = self._soma_qtd_cartas_frame('side', 'generic')
+            self._cache_qtd_cartas_generic_side = int(
+                self._cache_side.loc[
+                    self._cache_side['arquetype'] == 'generic'
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_generic_side
 
     @property
     def qtd_cartas_invalid_side(self) -> int:
         """Retorna a quantidade total de cartas invalidas no side deck."""
         if self._cache_qtd_cartas_invalid_side is None:
-            self._cache_qtd_cartas_invalid_side = self._soma_qtd_cartas_frame('side', 'invalid')
+            self._cache_qtd_cartas_invalid_side = int(
+                self._cache_side.loc[
+                    self._cache_side['arquetype'] == 'invalid'
+                ]['qtd_copy'].sum(axis=0)
+            )
         return self._cache_qtd_cartas_invalid_side
 
     @property
@@ -398,11 +404,21 @@ class FrameDeck(Combination):
 
 if __name__ == '__main__':
     URL_DECK = """
-    ydke://ZgEeAGYBHgA8Vk4FPFZOBQckdALEO0cFxDtHBbLJCQSyyQkEkFaQAZBWkAGQVpAB3ADiAdwA4gHJPTIDyT0yA2KA1ATj1qQA49akAOPWpABO93UBTvd1AbIyzAWyMswFPkiiAT5IogE+SKIB47AqAybrAATV9tYA1fbWAA31DAEN9QwBDfUMAd8WLwPfFi8D3xYvA8/v0ATP79AEz+/QBA==!Ebm4BWHRwQHNW4wFzVuMBc1bjAXADkkCiVRyAaSaKwAAuQgEALkIBAC5CAT5UX8Ei0cbA6KjRATbI+sD!7I8BAOyPAQDsjwEAsskJBE73dQGyMswF7ydRAO8nUQDV9tYAI9adAiPWnQJoTEQDIe4tAyHuLQMh7i0D!
+    ydke://ZgEeAGYBHgA8Vk4FPFZOBQckdALEO0cFxDtHBZBWkAGQVpABkFaQAdwA4gHcAOIByT0yA8k9MgM+SKIBPkiiAT5IogHP79AEz+/QBM/v0ATfFi8D3xYvA98WLwOyyQkEsskJBGKA1ATj1qQA49akAOPWpABO93UBTvd1AbIyzAWyMswF47AqAybrAATV9tYA1fbWAA31DAEN9QwBDfUMAQ==!Ebm4BWHRwQHNW4wFzVuMBc1bjAXADkkCiVRyAaSaKwAAuQgEALkIBAC5CAT5UX8Ei0cbA6KjRATbI+sD!7I8BAOyPAQDsjwEAsskJBE73dQGyMswF7ydRAO8nUQDV9tYAI9adAiPWnQJoTEQDIe4tAyHuLQMh7i0D!
     """
 
     core_deck = FrameDeck(URL_DECK)
-    print(core_deck.YDKE)
-    print(core_deck.qtd_trap_main)
-    print(core_deck.qtd_trap_arquetype_main)
-    print(core_deck.qtd_trap_generic_main)
+    print('Quantitativos de cartas do arquetipo')
+    print(core_deck.qtd_cartas_arquetype_main)
+    print(core_deck.qtd_cartas_arquetype_extra)
+    print(core_deck.qtd_cartas_arquetype_side)
+    
+    print('Quantitativos de cartas genericas')
+    print(core_deck.qtd_cartas_generic_main)
+    print(core_deck.qtd_cartas_generic_extra)
+    print(core_deck.qtd_cartas_generic_side)
+
+    print('Quantitativos de cartas invalidas')
+    print(core_deck.qtd_cartas_invalid_main)
+    print(core_deck.qtd_cartas_invalid_extra)
+    print(core_deck.qtd_cartas_invalid_side)
