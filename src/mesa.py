@@ -1,14 +1,15 @@
 #
 # Python 3.11.10
 #
+import re
 import os
 import math
 from os import PathLike
 from typing import List, Dict, Tuple, Union, Literal
 
-import numpy as np # type: ignore
-import pandas as pd # type: ignore
-from pandas import DataFrame # type: ignore
+import numpy as np                          # type: ignore
+import pandas as pd                         # type: ignore
+from pandas import DataFrame                # type: ignore
 
 from ydke import CoreYDKE
 from card import CardGameAsync
@@ -21,6 +22,7 @@ class MesaCore(CoreYDKE):
         self.__CARD_GAME_ASYNC__: CardGameAsync = CardGameAsync()
         self.__BANLIST_WEB__: BanSheetWeb = BanSheetWeb()
         self.__BANLIST_ASYNC__: BanSheetWebAsync = BanSheetWebAsync()
+        self.BANLIST: DataFrame = self.__monta_banlist_atual_()
 
     def download_async_dependencias(self) -> bool:
         """
@@ -53,6 +55,23 @@ class MesaCore(CoreYDKE):
         file = os.path.join(os.path.dirname(__file__), 'cache', arq)
         data_frame_cache = pd.read_csv(file, sep=lim, encoding='utf-8')
         return data_frame_cache
+
+    def read_var(self, arq: str, lim: str = '|') -> DataFrame:
+        """
+        Lê um DataFrame de um arquivo CSV armazenado em var.
+
+        A função busca o arquivo especificado (`arq`) no diretório
+        de var e o carrega em um DataFrame.
+
+        Args:
+            arq (str): Nome do arquivo CSV a ser lido.
+
+        Returns:
+            DataFrame: DataFrame contendo os dados lidos do arquivo.
+        """
+        file = os.path.join(os.path.dirname(__file__), 'var', arq)
+        data_frame_var = pd.read_csv(file, sep=lim, encoding='utf-8')
+        return data_frame_var
 
     def monta_parte_deck(
         self,
@@ -131,6 +150,36 @@ class MesaCore(CoreYDKE):
         side['arquetype'] = side['arquetype'].apply(classificador)
 
         return main, extra, side
+
+    def __monta_banlist_atual_(self) -> DataFrame:
+        """Monta o quadro da banlist vigente de acordo com os códigos das cartas."""
+        complet = self.read_cache('complet.csv')
+        home = self.read_var('Home.csv')
+        # limpando espaço adicional e titulo clonado
+        home = home.loc[~home['card_name'].isin(['Card Name'])].reset_index(drop=True)
+        home['card_name'] = home['card_name'].str.strip().str.upper()
+        home['card_name'] = home['card_name'].apply(lambda x: re.sub(r'\s+', ' ', x).strip())
+        
+        # separando codigos das cartas
+        cod_name = complet[['cod', 'card_name']].copy()
+        cod_name['card_name'] = cod_name['card_name'].str.upper().str.strip()
+        
+        # montagem do quadro correto
+        frame_correto = pd.merge(home, cod_name, how='inner', on='card_name')
+        frame_correto['remarks'] = frame_correto['remarks'].fillna('')
+        
+        # Procurando cartas com nomes bugados
+        DESAJUSTADOS = home.loc[
+            ~home['card_name'].isin(frame_correto['card_name'])
+        ].reset_index(drop=True)
+        if len(DESAJUSTADOS.index):
+            print('Problemas!! Existe nomes desajustados ou não cadastrados!!')
+            print(DESAJUSTADOS)
+        
+        # separando cartas da banlist
+        cartas_banlist = frame_correto[['cod', 'condition', 'remarks']]
+        banlist = pd.merge(cartas_banlist, complet, how='inner', on='cod')
+        return banlist
 
 
 class Combination(MesaCore):
@@ -409,12 +458,4 @@ if __name__ == '__main__':
     exemplo = os.path.join(DECKS, '_dogmatica.ydk')
 
     construct = Combination(exemplo)
-    print(construct.ydke)
-    print('\n')
-    print(construct.arquetipo)
-    print('\n')
-    print(construct.main)
-    print('\n')
-    print(construct.extra)
-    print('\n')
-    print(construct.side)
+    print(construct.BANLIST)
