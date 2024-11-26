@@ -90,13 +90,13 @@ def test_ydke_read_file_deck(ydk):
     assert 'not accessible' in result
     
     test = os.path.dirname(__file__)
-    arq_false = str(test).replace('test', '_deck_false.txt')
+    arq_false = str(test).replace('test', 'decks/_deck_false.txt')
     result = ydk.read_file_deck(arq_false)
     assert isinstance(result, str), "Nao gerou uma excessao"
     assert 'Not a ydk file:' in result, "Error desconhecido"
     
     # deve funcionar perfeitamente
-    arq_true = str(test).replace('test', '_dogmatica.ydk')
+    arq_true = str(test).replace('test', 'decks/_dogmatica.ydk')
     result = ydk.read_file_deck(arq_true)
     assert isinstance(result, dict), "Nao gerou um dicionario"
     assert isinstance(result['created'], str), "Nao e uma string"

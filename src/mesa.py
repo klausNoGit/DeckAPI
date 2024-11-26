@@ -5,7 +5,7 @@ import re
 import os
 import math
 from os import PathLike
-from typing import List, Dict, Tuple, Union, Literal
+from typing import List, Tuple, Union, Literal
 
 import numpy as np                          # type: ignore
 import pandas as pd                         # type: ignore
@@ -17,6 +17,11 @@ from ban import BanSheetWeb, BanSheetWebAsync
 
 
 class MesaCore(CoreYDKE):
+    """
+    Estrutura de dados desenvolvida para lidar com a base de recursos do projeto.
+    Executa a leitura de diretórios, arquivos e afins. Todos relacionados ao
+    deck e a estrutura de dados de criptografia YDKE.
+    """
     def __init__(self) -> None:
         super().__init__()        
         self.__CARD_GAME_ASYNC__: CardGameAsync = CardGameAsync()
@@ -41,7 +46,7 @@ class MesaCore(CoreYDKE):
 
     def read_cache(self, arq: str, lim: str = ';') -> DataFrame:
         """
-        Lê um DataFrame de um arquivo CSV armazenado em cache.
+        Lê nome do arquivo CSV como DataFrame e retorna o DataFrame lido.
 
         A função busca o arquivo especificado (`arq`) no diretório
         de cache e o carrega em um DataFrame.
@@ -58,7 +63,7 @@ class MesaCore(CoreYDKE):
 
     def read_var(self, arq: str, lim: str = '|') -> DataFrame:
         """
-        Lê um DataFrame de um arquivo CSV armazenado em var.
+        Lê nome do arquivo CSV como DataFrame e retorna o DataFrame lido.
 
         A função busca o arquivo especificado (`arq`) no diretório
         de var e o carrega em um DataFrame.
@@ -159,15 +164,15 @@ class MesaCore(CoreYDKE):
         home = home.loc[~home['card_name'].isin(['Card Name'])].reset_index(drop=True)
         home['card_name'] = home['card_name'].str.strip().str.upper()
         home['card_name'] = home['card_name'].apply(lambda x: re.sub(r'\s+', ' ', x).strip())
-        
+
         # separando codigos das cartas
         cod_name = complet[['cod', 'card_name']].copy()
         cod_name['card_name'] = cod_name['card_name'].str.upper().str.strip()
-        
+
         # montagem do quadro correto
         frame_correto = pd.merge(home, cod_name, how='inner', on='card_name')
         frame_correto['remarks'] = frame_correto['remarks'].fillna('')
-        
+
         # Procurando cartas com nomes bugados
         DESAJUSTADOS = home.loc[
             ~home['card_name'].isin(frame_correto['card_name'])
@@ -175,7 +180,7 @@ class MesaCore(CoreYDKE):
         if len(DESAJUSTADOS.index):
             print('Problemas!! Existe nomes desajustados ou não cadastrados!!')
             print(DESAJUSTADOS)
-        
+
         # separando cartas da banlist
         cartas_banlist = frame_correto[['cod', 'condition', 'remarks']]
         banlist = pd.merge(cartas_banlist, complet, how='inner', on='cod')
@@ -233,7 +238,7 @@ class Combination(MesaCore):
         ].groupby(['arquetype']).sum().reset_index()
         pares_abs.columns = ['arquetype', 'freq_abs']
         pares_abs = pares_abs.sort_values(by=['freq_abs'], ascending=False)
-        
+
         # Cria chaves absolutas do maior ao menor
         pares_abs['key_abs'] = range(len(pares_abs), 0, -1)
 
@@ -244,7 +249,7 @@ class Combination(MesaCore):
         # Confere se o maior for generic, se for zera ele
         if array[0] == 'generic':
             pares_abs.loc[pares_abs['arquetype'] == 'generic', 'freq_abs'] = 0
-        
+
         # Coloca em base 10 float e une com merge na parte principal
         pares_abs['freq_abs'] = pares_abs['freq_abs'] / 10
         df_merge = pd.merge(part_deck, pares_abs, how='left', on='arquetype')
@@ -275,7 +280,7 @@ class Combination(MesaCore):
         alg_freq.columns = ['arquetype', 'sub_freq']
         alg_freq['sub_freq'] = alg_freq['sub_freq'] / 10
         alg_freq['sub_key'] = range(len(alg_freq), 0, -1)
-        
+
         # Zera a combinacao linear de arquetipo do 
         # tipo 'generic' se ele ainda for o maior
         array = alg_freq['sub_key'] == alg_freq['sub_key'].max()
@@ -348,7 +353,7 @@ class Combination(MesaCore):
         """
         Define a criação da coluna 'Y' com meta dados de classificação da carta,
         se ela é do arquetipo, generica ou invalida: [1, 0, -1]
-        
+
         Args:
             matriz (DataFrame) : Frame completo com todas as chaves
                 previamente calculadas.
@@ -432,10 +437,10 @@ class Combination(MesaCore):
         """
         Cria o vetor linear correspondente ao Y. Função desenvolvida para
         extra e side.
-        
+
         Args:
             matrix (DataFrame) : Frame do extra ou side deck.
-        
+
         Returns:
             ndarray : Vetor com classificação de arquétipo em [0, 1, -1].
         """
@@ -458,4 +463,5 @@ if __name__ == '__main__':
     exemplo = os.path.join(DECKS, '_dogmatica.ydk')
 
     construct = Combination(exemplo)
+    print("Warning: Banlist Atual!!")
     print(construct.BANLIST)
