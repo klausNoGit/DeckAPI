@@ -23,11 +23,21 @@ class MesaCore(CoreYDKE):
     deck e a estrutura de dados de criptografia YDKE.
     """
     def __init__(self) -> None:
-        super().__init__()        
+        super().__init__()
+        self.YDKE_EX: str = """ydke://T+rhBE/q4QRP6uEEZkhVA2ZIVQNmSFUDSNtkAEjbZAAtTsoALU7KAC1OygDMvQQDzL0EA4/c4wSP3OMETRcqAU0XKgFNFyoBsPMNAaBT8QKgU/ECoFPxArqWmgK6lpoCsskJBLLJCQRO93UBTvd1AbIyzAWyMswFJjzNASY8zQHjsCoDWXtjBO8nUQDvJ1EA1fbWANX21gDV9tYArmAJBA==!Vm8XAVZvFwFWbxcBOjGqAjoxqgI6MaoCWmixAVposQHKg4kC1m/tA9H6jAXKP2ABEbm4BRHqPQTrK/8C!7I8BAOyPAQDsjwEAWmHoBSbrAATvJ1EAo2rUAqNq1ALDLy0Ewy8tBCHuLQMh7i0DIe4tA4PX8QWD1/EF!"""
         self.__CARD_GAME_ASYNC__: CardGameAsync = CardGameAsync()
         self.__BANLIST_WEB__: BanSheetWeb = BanSheetWeb()
         self.__BANLIST_ASYNC__: BanSheetWebAsync = BanSheetWebAsync()
+        # Parte essencial da banlist em caches
         self.BANLIST: DataFrame = self.__monta_banlist_atual_()
+        self.BANLIST_PART = self.BANLIST[['cod', 'condition', 'remarks']].copy()
+        self.VETOR_COD_BANLIST = self.BANLIST_PART['cod'].astype(int).unique()
+        self.BANLIST_PART['condition'] = self.BANLIST_PART['condition'].map({
+            'Unlimited': 3,
+            'Semi-Limited': 2,
+            'Limited': 1,
+            'Forbidden': 0
+        })
 
     def download_async_dependencias(self) -> bool:
         """
@@ -206,7 +216,7 @@ class Combination(MesaCore):
         if 'ydke://' in decklist:
             self.YDKE: str = decklist.strip().replace(' ', '')
             self.main, self.extra, self.side = self.read_link_deck_ydke(self.YDKE)
-            self.arquetipo, self.linear_main = self._construct_main_deck(self.main)
+            self.arquetype, self.linear_main = self._construct_main_deck(self.main)
             self.linear_extra = self._construct_vetor(self.extra)
             self.linear_side  = self._construct_vetor(self.side)
         else:
@@ -216,11 +226,48 @@ class Combination(MesaCore):
                 self.YDKE: str = self.to_url(deck_list).strip().replace(' ', '')
 
                 self.main, self.extra, self.side = self.read_link_deck_ydke(self.YDKE)
-                self.arquetipo, self.linear_main = self._construct_main_deck(self.main)
+                self.arquetype, self.linear_main = self._construct_main_deck(self.main)
                 self.linear_extra = self._construct_vetor(self.extra)
                 self.linear_side  = self._construct_vetor(self.side)
             else:
                 raise ValueError(f'Parameter invalid : {decklist}')
+        
+        self.arquetype = self.arquetype.strip()
+        self.main = self.__cache_main()
+        self.extra = self.__cache_extra()
+        self.side = self.__cache_side()
+
+    def __cache_main(self) -> DataFrame:
+        """Retorna o frame do main deck mais atualizado."""
+        self.main['arquetype'] = self.linear_main['arquetype_y']
+        main = pd.merge(self.main, self.BANLIST_PART, how='left', on='cod')
+        main['condition'] = main['condition'].fillna(3).astype(int)
+        main['remarks'] = main['remarks'].fillna('')
+        return main.copy()
+
+    def __cache_extra(self) -> DataFrame:
+        """Retorna o frame do extra deck mais atualizado."""
+        self.extra['arquetype'] = pd.Series(self.linear_extra).map({
+            1: self.arquetype,
+            0: 'generic',
+            -1: 'invalid'
+        })
+        extra = pd.merge(self.extra, self.BANLIST_PART, how='left', on='cod')
+        extra['condition'] = extra['condition'].fillna(3).astype(int)
+        extra['remarks'] = extra['remarks'].fillna('')
+        return extra.copy()
+
+    def __cache_side(self) -> DataFrame:
+        """Retorna o frame do side deck mais atualizado."""
+        self.side['arquetype'] = pd.Series(self.linear_side).map({
+            1: self.arquetype,
+            0: 'generic',
+            -1: 'invalid'
+        })
+        side = pd.merge(self.side, self.BANLIST_PART, how='left', on='cod')
+        side['condition'] = side['condition'].fillna(3).astype(int)
+        side['remarks'] = side['remarks'].fillna('')
+        return side.copy()
 
     def _conta_frequencia_arquetipo_main_deck(self, part_deck: DataFrame) -> DataFrame:
         """
@@ -380,7 +427,9 @@ class Combination(MesaCore):
             ]
             return 'generic', matriz[colunas_separadas].copy()
         else:
-            ver_freq = frame_maior_ocorrencia['arquetype'].str.replace('|',' ')
+            # Quebra palavras pelas tabulações e garante 1 espaço adicional
+            ver_freq = frame_maior_ocorrencia['arquetype'].str.replace('|', ' ')
+            ver_freq = ver_freq.apply(lambda x: re.sub(r'\s+', ' ', x)).str.strip()
             ver_freq = ver_freq.str.split(' ')
             ver_freq = ver_freq.explode().value_counts()
             ver_freq = ver_freq.reset_index(name='freq')
@@ -444,16 +493,16 @@ class Combination(MesaCore):
         Returns:
             ndarray : Vetor com classificação de arquétipo em [0, 1, -1].
         """
-        # Substitui valores que contêm o nome do arquétipo por `self.arquetipo`
+        # Substitui valores que contêm o nome do arquétipo por `self.arquetype`
         # Debuga arquetipos multiplicados ex: DDD | Dark Contract | DD
         matrix['arquetype'] = matrix['arquetype'].apply(
-            lambda x: self.arquetipo if self.arquetipo in x else x
+            lambda x: self.arquetype if self.arquetype in x else x
         )
 
         return np.select([
-            matrix['arquetype'] == self.arquetipo,
+            matrix['arquetype'] == self.arquetype,
             matrix['arquetype'] == 'generic',
-            ~matrix['arquetype'].isin([self.arquetipo, 'generic'])
+            ~matrix['arquetype'].isin([self.arquetype, 'generic'])
         ], [1, 0, -1], default=-1)
 
 if __name__ == '__main__':
@@ -462,6 +511,11 @@ if __name__ == '__main__':
     DECKS = SRC.replace('src', 'decks')
     exemplo = os.path.join(DECKS, '_dogmatica.ydk')
 
+    exemplo = """
+    ydke://Tk8mBZbF4gOWxeIDlsXiA8GnQAXBp0AFwadABX8x+QJ/MfkCfzH5AqTz0wBrMXACeHPdAHhz3QB4c90A5XdoAeV3aAHld2gB3VExBU73dQFO93UBsjLMBbIyzAWyMswF47AqA/4KgATV9tYA1fbWAHtkHQJ7ZB0CrmAJBFhkfwSNVlcBjVZXAY1WVwHzVbAA81WwAPNVsAAxMnIDInLNAQ==!O39gA3zSJwR80icE4HAkBeBwJAXxZd0C8WXdAtZ2wQCfkGoAMqpZAZuSugWbkroFOGOBAzhjgQM4Y4ED!YofGAk5PJgXhWJ0DPCOgBSTeVwAk3lcAJN5XAIQlfgCEJX4AhCV+APkyxQAh7i0DIe4tAyHuLQOD1/EF!
+    """
     construct = Combination(exemplo)
-    print("Warning: Banlist Atual!!")
-    print(construct.BANLIST)
+    # print("Warning: Banlist Atual!!")
+    print(construct.arquetype)
+    print(construct.main)
+    print(construct.linear_main)
