@@ -11,10 +11,15 @@ import numpy as np                          # type: ignore
 import pandas as pd                         # type: ignore
 from pandas import DataFrame                # type: ignore
 
-from ydke import CoreYDKE
-from card import CardGameAsync
-from ban import BanSheetWeb, BanSheetWebAsync
-
+try:
+    from ydke import CoreYDKE
+    from card import CardGameAsync
+    from ban import BanSheetWeb, BanSheetWebAsync
+except:
+    from src.ydke import CoreYDKE
+    from src.card import CardGameAsync
+    from src.ban import BanSheetWeb, BanSheetWebAsync
+    
 
 class MesaCore(CoreYDKE):
     """

@@ -2,8 +2,10 @@
 # Python ^3.11
 #
 
-import pprint
+import os
 from os import PathLike
+import json
+import pprint
 from typing import (
     List,
     Union,
@@ -11,10 +13,12 @@ from typing import (
 )
 
 import pandas as pd                                # type: ignore
-from numpy import ndarray                          # type: ignore
 from pandas import DataFrame                       # type: ignore
 
-from mesa import Combination
+try:
+    from mesa import Combination
+except:
+    from src.mesa import Combination
 
 
 class FrameDeck(Combination):
@@ -452,8 +456,74 @@ class FrameDeck(Combination):
         return self.cards_invalids().to_dict(orient='list')
 
     def get_deck(self) -> Dict:
-        """Retorna o dicionario do deck, sendo o dicionário códido das cartas."""
+        """Retorna o dicionario do deck, sendo o dicionário código das cartas."""
         return self.read_url(self.YDKE)
+
+    def get_struct_complet_deck(self):
+        dir_file_cards = os.path.join(
+            os.path.dirname(__file__), 'json', 'dados_cartas_oficial.json'
+        )
+        with open(dir_file_cards, 'r', encoding='utf-8') as file:
+            struct_cards = json.loads(file.read())
+
+        list_data_cards = struct_cards['data']
+        def select_card_structure(cod: int):
+            str_cod = str(cod)
+            
+            for card in list_data_cards:
+                # Verifica se o código está no ID do card
+                if str(card['id']) == str_cod:
+                    return {
+                        'card_images': card['card_images'],
+                        'desc': card['desc'],
+                        'frameType': card['frameType'],
+                        'humanReadableCardType': card['humanReadableCardType'],
+                        'id': card['id'],
+                        'name': card['name'],
+                        'race': card['race'],
+                        'type': card['type'],
+                        'ygoprodeck_url': card['ygoprodeck_url']
+                    }
+
+                # Verifica se o código está no ID das imagens
+                for image in card['card_images']:
+                    if str(image['id']) == str_cod:
+                        return {
+                            'card_images': card['card_images'],
+                            'desc': card['desc'],
+                            'frameType': card['frameType'],
+                            'humanReadableCardType': card['humanReadableCardType'],
+                            'id': image['id'],  # ID alterado aqui
+                            'name': card['name'],
+                            'race': card['race'],
+                            'type': card['type'],
+                            'ygoprodeck_url': card['ygoprodeck_url']
+                        }
+
+            # Retorna um dicionário vazio padrão caso nada seja encontrado
+            return {
+                'card_images': [{
+                    'id': 1,
+                    'image_url': '',
+                    'image_url_cropped': '',
+                    'image_url_small': ''
+                }],
+                'desc': '',
+                'frameType': '',
+                'humanReadableCardType': '',
+                'id': '',
+                'name': '',
+                'race': '',
+                'type': '',
+                'ygoprodeck_url': 'https://ygoprodeck.com/card/found'
+            }
+
+
+        cache_cod = self.get_deck()
+        main = list(map(select_card_structure, cache_cod['main']))
+        extra = list(map(select_card_structure, cache_cod['extra']))
+        side = list(map(select_card_structure, cache_cod['side']))
+        return { 'main': main, 'extra': extra, 'side': side}
 
     def get_dict_deck(self) -> Dict:
         """
@@ -473,7 +543,10 @@ class FrameDeck(Combination):
             self._cache_strutura_deck = {
                 'arquetype': self.arquetype,
                 'ydke': self.YDKE,
-                'decklist': self.read_url(self.YDKE),
+                'decklist': {
+                    'cod': self.read_url(self.YDKE),
+                    'deck': self.get_struct_complet_deck()
+                },
                 'full_cards': {
                     'deck': self.full_cards_deck,
                     'main': self.full_cards_main,
@@ -527,7 +600,7 @@ class FrameDeck(Combination):
                         self.cod_cards_banlist_no_deck,
                         self.vetor_condition_cards_banlist
                     ))
-                }
+                },
             }
         return self._cache_strutura_deck
 
@@ -544,9 +617,10 @@ class FrameDeck(Combination):
 
 if __name__ == '__main__':
     URL_DECK = """
-    ydke://Tk8mBZbF4gOWxeIDlsXiA8GnQAXBp0AFwadABX8x+QJ/MfkCfzH5AqTz0wBrMXACeHPdAHhz3QB4c90A5XdoAeV3aAHld2gB3VExBU73dQFO93UBsjLMBbIyzAWyMswF47AqA/4KgATV9tYA1fbWAHtkHQJ7ZB0CrmAJBFhkfwSNVlcBjVZXAY1WVwHzVbAA81WwAPNVsAAxMnIDInLNAQ==!O39gA3zSJwR80icE4HAkBeBwJAXxZd0C8WXdAtZ2wQCfkGoAMqpZAZuSugWbkroFOGOBAzhjgQM4Y4ED!YofGAk5PJgXhWJ0DPCOgBSTeVwAk3lcAJN5XAIQlfgCEJX4AhCV+APkyxQAh7i0DIe4tAyHuLQOD1/EF!
+    ydke://nwMmBZ8DJgWfAyYFpadsAaWnbAGlp2wBCssAAwrLAAPj1qQA49akAOPWpABKngUDUkmHAQZS3QAKzcIAreIKAq3iCgJaojUBWqI1AXy2hgN8toYDfLaGA8ap2gRZe2ME74IWAO+CFgDvghYAMT5LAB3XRgNLehkFS3oZBZU3UQXLS5IDy0uSA6I2VgBT9foEnOG9AJzhvQCc4b0AC0LGBA==!!Ot5wAxLZoAIS2aACWqI1AeyPAQDsjwEAhCV+AIQlfgA=!
     """
 
     core_deck = FrameDeck(URL_DECK)
     dados = core_deck.get_dict_deck()
-    pprint.pprint(dados)
+    # pprint.pprint(dados)
+    print(dados)

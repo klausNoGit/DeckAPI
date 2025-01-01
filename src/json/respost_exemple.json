@@ -1,0 +1,78 @@
+{
+    "arquetype": "generic",
+    "ydke": "ydke: //nwMmBZ8DJgWfAyYFpadsAaWnbAGlp2wBCssAAwrLAAPj1qQA49akAOPWpABKngUDUkmHAQZS3QAKzcIAreIKAq3iCgJaojUBWqI1AXy2hgN8toYDfLaGA8ap2gRZe2ME74IWAO+CFgDvghYAMT5LAB3XRgNLehkFS3oZBZU3UQXLS5IDy0uSA6I2VgBT9foEnOG9AJzhvQCc4b0AC0LGBA==!!Ot5wAxLZoAIS2aACWqI1AeyPAQDsjwEAhCV+AIQlfgA=!",
+    "decklist": {
+        "cod": {
+            "main": [86377375, 86377375],
+            "extra": [],
+            "side": [102380, 8267140, 8267140]
+        },
+        "deck": {
+            "main": [
+                {
+                    "card_images": [
+                        {
+                            "id": 86377375,
+                            "image_url": "https://images.ygoprodeck.com/images/cards/86377375.jpg",
+                            "image_url_small": "https://images.ygoprodeck.com/images/cards_small/86377375.jpg",
+                            "image_url_cropped": "https://images.ygoprodeck.com/images/cards_cropped/86377375.jpg"
+                        }
+                    ],
+                    "desc": "You can discard this card; add 1 \"Lair of Darkness\" from your Deck to your hand. You can Tribute 1 DARK monster; draw 1 card, or, if you Tributed a DARK monster other than this card to activate this effect, you can add 1 DARK monster with 2000 or more DEF from your Deck to your hand, instead. You can only use this effect of \"Ahrima, the Wicked Warden\" once per turn.",
+                    "frameType": "effect",
+                    "humanReadableCardType": "Effect Monster",
+                    "id": 86377375,
+                    "name": "Ahrima, the Wicked Warden",
+                    "race": "Fiend",
+                    "type": "Effect Monster",
+                    "ygoprodeck_url": "https://ygoprodeck.com/card/ahrima-the-wicked-warden-9316"
+                }
+            ],
+            "extra": [],
+            "side": []
+        }
+    },
+    "full_cards": {
+        "deck": 48,
+        "main": 40,
+        "extra": 0,
+        "side": 8,
+        "arquetype": 0,
+        "generic": 48,
+        "arquetypes_invalidos": 0
+    },
+    "number_copy_cards": {
+        "monster_main": 19,
+        "monster_arquetype_main": 0,
+        "monster_generic_main": 19,
+        "spell_main": 8,
+        "spell_arquetype_main": 0,
+        "spell_generic_main": 8,
+        "trap_main": 13,
+        "trap_arquetype_main": 0,
+        "trap_generic_main": 13,
+        "arquetype_main": 0,
+        "generic_main": 40,
+        "invalids_main": 0,
+        "arquetype_extra": 0,
+        "generic_extra": 0,
+        "invalids_extra": 0,
+        "arquetype_side": 0,
+        "generic_side": 8,
+        "invalids_side": 0,
+        "banlist": 11,
+        "banlist_main": 11,
+        "banlist_extra": 0,
+        "banlist_side": 0
+    },
+    "cards_invalids": {
+        "cod_arquetype": [],
+        "cod_banlist": []
+    },
+    "cards_banlist_no_deck": {
+        "cod_condition": [
+            "1475311:3",
+            "4931121:1"
+        ]
+    }
+}
