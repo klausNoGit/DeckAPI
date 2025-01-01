@@ -173,3 +173,5 @@ cython_debug/
 /src/jupyter/output
 /src/jupyter/arquetipos_names.xlsx
 /.vscode
+/src/public/img/game-img/
+/src/var

@@ -11,3 +11,9 @@ https://images.ygoprodeck.com/images/cards_small/{number}.jpg
 
 https://images.ygoprodeck.com/images/cards/81439174.jpg
 
+// Obtem o JSON com dados de todas as cartas mais recentes no jogo
+// não enviar multiplas requisições - Bloqueio de IP
+https://db.ygoprodeck.com/api/v7/cardinfo.php
+
+https://abrir.link/Nakso (geek backpack store website)
+https://shre.ink/mochilahelp (WhatsApp access website, etc.)
