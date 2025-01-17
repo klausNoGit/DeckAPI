@@ -617,10 +617,10 @@ class FrameDeck(Combination):
 
 if __name__ == '__main__':
     URL_DECK = """
-    ydke://nwMmBZ8DJgWfAyYFpadsAaWnbAGlp2wBCssAAwrLAAPj1qQA49akAOPWpABKngUDUkmHAQZS3QAKzcIAreIKAq3iCgJaojUBWqI1AXy2hgN8toYDfLaGA8ap2gRZe2ME74IWAO+CFgDvghYAMT5LAB3XRgNLehkFS3oZBZU3UQXLS5IDy0uSA6I2VgBT9foEnOG9AJzhvQCc4b0AC0LGBA==!!Ot5wAxLZoAIS2aACWqI1AeyPAQDsjwEAhCV+AIQlfgA=!
+    ydke://EbMeBJxv8wETR2UAoJQEAi85lwMYplQEjLuuAqMvCAJc1PMBzPW4AlxHmgM=!frikAQ==!!
     """
 
     core_deck = FrameDeck(URL_DECK)
     dados = core_deck.get_dict_deck()
-    # pprint.pprint(dados)
-    print(dados)
+    pprint.pprint(dados)
+    # print(dados)

@@ -155,19 +155,26 @@ class MesaCore(CoreYDKE):
         link = link.replace('\n', '').replace(' ', '').replace('\t', '')
         deck = self.read_url(link)
         mini_arquetipos = self.read_cache('min.csv')
+        mini_arquetipos = mini_arquetipos['name'].values
 
-        classificador = lambda x: 'generic' if any(
-            min in x for min in mini_arquetipos['name']
-        ) else x
+        def classifier(text: str) -> str:
+            if '|' in text:
+                if any([
+                    t in mini_arquetipos for t in text.replace(' | ', '|').split('|')
+                ]):
+                    text = 'generic'
+            elif text in mini_arquetipos:
+                return 'generic'
+            return text
 
         main = self.monta_parte_deck('main', deck['main'])
-        main['arquetype'] = main['arquetype'].apply(classificador)
+        main['arquetype'] = main['arquetype'].apply(classifier)
 
         extra = self.monta_parte_deck('extra', deck['extra'])
-        extra['arquetype'] = extra['arquetype'].apply(classificador)
+        extra['arquetype'] = extra['arquetype'].apply(classifier)
 
         side = self.monta_parte_deck('side', deck['side'])
-        side['arquetype'] = side['arquetype'].apply(classificador)
+        side['arquetype'] = side['arquetype'].apply(classifier)
 
         return main, extra, side
 
@@ -517,10 +524,13 @@ if __name__ == '__main__':
     exemplo = os.path.join(DECKS, '_dogmatica.ydk')
 
     exemplo = """
-    ydke://Tk8mBZbF4gOWxeIDlsXiA8GnQAXBp0AFwadABX8x+QJ/MfkCfzH5AqTz0wBrMXACeHPdAHhz3QB4c90A5XdoAeV3aAHld2gB3VExBU73dQFO93UBsjLMBbIyzAWyMswF47AqA/4KgATV9tYA1fbWAHtkHQJ7ZB0CrmAJBFhkfwSNVlcBjVZXAY1WVwHzVbAA81WwAPNVsAAxMnIDInLNAQ==!O39gA3zSJwR80icE4HAkBeBwJAXxZd0C8WXdAtZ2wQCfkGoAMqpZAZuSugWbkroFOGOBAzhjgQM4Y4ED!YofGAk5PJgXhWJ0DPCOgBSTeVwAk3lcAJN5XAIQlfgCEJX4AhCV+APkyxQAh7i0DIe4tAyHuLQOD1/EF!
+    ydke://7I8BAOyPAQDsjwEA9mz6AvZs+gL2bPoCOKInBTiiJwU4oicFkgntApIJ7QKSCe0CN1CFADdQhQDl078A5dO/AOXTvwCyMswFsjLMBbIyzAUuJeMALiXjAC4l4wA/DRoC7yX+BO8nUQDvJ1EA7ydRAK5gCQTfI/8C3yP/At8j/wJaM2kEWjNpBFozaQSB68sAgevLAIHrywDBeBYBwXgWAQ==!Hr0ZAK+6gwWvuoMFj7z5A7ZTxQS4gQkDeOXjBJfnGQLKg4kC+0ytBX4MnQF+DJ0BWpSsA1dqPASZb2cF!c189AbyDPAJDP08E/gqABIQlfgCEJX4AhCV+ANX21gDV9tYA1fbWAF6jwAFeo8ABEtmgAhlDnQUZQ50F!
     """
     construct = Combination(exemplo)
-    # print("Warning: Banlist Atual!!")
     print(construct.arquetype)
     print(construct.main)
     print(construct.linear_main)
+    print(construct.extra)
+    print(construct.linear_extra)
+    print(construct.side)
+    print(construct.linear_side)
