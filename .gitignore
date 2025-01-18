@@ -175,3 +175,5 @@ cython_debug/
 /.vscode
 /src/public/img/game-img/
 /src/var
+/data/*
+/src/data

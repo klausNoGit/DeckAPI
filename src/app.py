@@ -1,11 +1,19 @@
 import os
 from typing import Union
+
+import uvicorn
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.requests import Request
 from fastapi.middleware.cors import CORSMiddleware
-from deck import FrameDeck
+
+try:
+    from deck import FrameDeck
+    from base import CardInfoOfficial
+except:
+    from src.deck import FrameDeck
+    from src.base import CardInfoOfficial
 
 app = FastAPI()
 
@@ -37,9 +45,17 @@ def read_item(ydke: Union[str, None] = None):
         ydke = ydke.replace(' ', '+').replace('/decklist?ydke=', '')
         core = FrameDeck(ydke)
         dados = core.get_dict_deck()
-        return dados
+        return JSONResponse(dados)
     else:
-        return {"status": 200, "error": "Parameter ydke= not insered"}
+        return JSONResponse('Parameter ydke= not insered', status_code=400)
+
+@app.get('/card')
+def read_card(id: str):
+    if id:
+        id = int(id)
+        card = CardInfoOfficial(id)
+        return JSONResponse(card.info_card)
+    return JSONResponse('Parameter "id" not insered', status_code=400)
 
 if __name__ == '__main__':
-    app.run()
+    uvicorn.run(uvicorn.run("app:app", host="127.0.0.1", port=8000, reload=True))

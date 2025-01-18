@@ -1,4 +1,4 @@
-![yugioh](logo.png)
+![yugioh](logo.jpg)
 
 # Deck-API
 
@@ -24,61 +24,45 @@ Uma deck-list é simplesmente a lista de cartas (incluindo nome e quantidade) qu
 
 ```
 Main Deck:
-Snake-Eyes Flamberge Dragon x1
-Snake-Eyes Diabellstar x1
-Diabellstar the Black Witch x3
-Fiendsmith Engraver x2
-Lacrima the Crimson Tears x1
-Mulcharmy Purulia x3
-Ash Blossom & Joyous Spring x3
-Ghost Ogre & Snow Rabbit x2
-Snake-Eye Oak x1
-Snake-Eye Ash x1
-Snake-Eyes Poplar x1
-Fabled Lurrie x1
-Droll & Lock Bird x2
-Effect Veiler x2
-Triple Tactics Talent x1
-Bonfire x3
-Original Sinful Spoils - Snake-Eye x1
-The Hallowed Azamina x1
-Fiendsmith's Tract x1
-Called by the Grave x1
-WANTED: Seeker of Sinful Spoils x3
-Deception of the Sinful Spoils x2
-Divine Temple of the Snake-Eye x1
-Infinite Impermanence x2
+Dark Magician x3
+Magician of Dark Illusion x1
+Apprentice Illusion Magician x3
+Skull Meister x3
+Magician's Rod x3
+Effect Veiler x3
+Magicians' Souls x2
+Magician of Chaos x1
+The Eye of Timaeus x2
+Dark Magic Attack x1
+Dark Magic Inheritance x3
+Twin Twisters x3
+Secrets of Dark Magic x2
+Illusion Magic x1
+Dark Magical Circle x3
+Magician Navigation x2
+Destined Rivals x1
+Eternal Soul x3
 
 
 Extra Deck:
-Fiendsmith's Desirae x1
-Azamina Mu Rcielago x1
-Azamina Ilia Silvia x1
-Underworld Goddess of the Closed World x1
-Salamangreat Raging Phoenix x1
-Worldsea Dragon Zealantis x1
-Promethean Princess, Bestower of Flames x1
-Knightmare Phoenix x1
-Hiita the Fire Charmer, Ablaze x1
-S:P Little Knight x1
-Fiendsmith's Sequence x1
-Moon of the Closed Heaven x1
-I:P Masquerena x1
-Fiendsmith's Requiem x1
-Relinquished Anima x1
+Dark Magician the Dragon Knight x3
+Master of Chaos x1
+Amulet Dragon x3
+Dark Magician the Knight of Dragon Magic x1
+Dark Paladin x2
+The Dark Magicians x2
+Dark Cavalry x2
+Dark Magician Girl the Dragon Knight x1
 
 
 Side Deck:
-Nibiru, the Primal Being x2
-Droll & Lock Bird x1
-Effect Veiler x1
-Harpie's Feather Duster x1
-Triple Tactics Thrust x3
-Dark Ruler No More x2
-Cosmic Cyclone x2
-Infinite Impermanence x1
-Anti-Spell Fragrance x1
-Skill Drain x1
+Lava Golem x3
+D.D. Crow x3
+Magician of Chaos x1
+Dark Ruler No More x1
+Cosmic Cyclone x3
+Ballista Squad x1
+Light-Imprisoning Mirror x3
 ```
 
 Note que a deck-list do exemplo utiliza os componentes **"Main Deck", "Extra Deck" e "Side Deck"**.
@@ -102,12 +86,7 @@ O Link do Deck é uma URL criptografada em base64, composta por números **intei
 Veja abaixo um exemplo:
 
 ```
-ydke://kFPjArv1nwEDwk4EA8JOBAPCTgTBMZ8DwTGfA16AtwFErQQFRK0EBUStBAWwI94AsC
-PeALAj3gBS94oDUveKA/7FuAIynZMA/PhgBSoL0gX9iZwF/YmcBbIyzAWyMswFHjeCAV2fEgV
-dnxIFXZ8SBf5jTgWUOqcFRQTgBT6kcQHqmNEE6pjRBOqY0QRIF/QDSBf0A896MgMiSJkAIkiZ
-AA==!+0rlBFrfXwQ688MCuk7ZBQDOZwMVXbACcU0qAKSaKwCw3ugCyhq/AXvs+AK33kcE2iPr
-AzKYJQCxSZ4F!1xqfAdcanwH9iZwFsjLMBfvcFAEQLRoCEC0aAhAtGgImkEIDJpBCA4QlfgCE
-JX4AIkiZAFEQgwOhZu4E!
+ydke://r/TMAq/0zAKv9MwCd/oYAqj50gGo+dIBqPnSAbLJCQSyyQkEsskJBGEYbABhGGwAYRhsALIyzAWyMswFsjLMBUe80QVHvNEF6tzbAm47GwBuOxsA/k8jABDUfAIQ1HwCENR8AiPWnQIj1p0CI9adAgQdjAMEHYwDH01jBAiP0AIIj9ACCI/QAuPkeADj5HgA6V9ZAQrQ5gIK0OYCCtDmAg==!ep18AnqdfAJ6nXwCUukRBc83fgTPN34Ezzd+BFX0WADhBd8F4QXfBdaQ/gLWkP4COcpgBDnKYAS4vp0C!7I8BAOyPAQDsjwEATvd1AU73dQFO93UB6tzbAiaQQgOEJX4AhCV+AIQlfgBkn80EIe4tAyHuLQMh7i0D!
 ```
 
 ![decklist](decklist.png)
@@ -123,74 +102,23 @@ O arquivo de uma deck list em Yu-Gi-Oh possui o sequinte formato interno:
 #main
 48452496
 27260347
-72270339
-72270339
-72270339
-60764609
-60764609
-28803166
-84192580
-84192580
-84192580
-14558128
-14558128
-14558128
-59438930
-59438930
-45663742
-9674034
-90241276
-97651498
-94145021
-94145021
-97268402
-97268402
-25311006
-85106525
-85106525
-85106525
-89023486
-94845588
-98567237
-24224830
-80845034
-80845034
-80845034
-66328392
-66328392
-53639887
-10045474
-10045474
-#extra
-82135803
-73391962
-46396218
-98127546
-57134592
-45112597
-2772337
-2857636
-48815792
-29301450
-49867899
-71818935
-65741786
-2463794
+.
+.
+.
 94259633
+#extra
+27204311
+.
+.
+.
+27204311
 !side
 27204311
 27204311
-94145021
-97268402
-18144507
-35269904
-35269904
-35269904
-54693926
-54693926
-8267140
-8267140
-10045474
+.
+.
+.
+0045474
 58921041
 82732705
 ```
