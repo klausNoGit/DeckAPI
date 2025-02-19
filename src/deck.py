@@ -461,12 +461,12 @@ class FrameDeck(Combination):
 
     def get_struct_complet_deck(self):
         dir_file_cards = os.path.join(
-            os.path.dirname(__file__), 'json', 'dados_cartas_oficial.json'
+            os.path.dirname(__file__), 'json', 'data_cards_official.json'
         )
         with open(dir_file_cards, 'r', encoding='utf-8') as file:
             struct_cards = json.loads(file.read())
 
-        list_data_cards = struct_cards['data']
+        list_data_cards = struct_cards
         def select_card_structure(cod: int):
             str_cod = str(cod)
             
